@@ -1,0 +1,6 @@
+<Project>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' != 'Debug'">
+  </ItemGroup>
+</Project>
