@@ -123,12 +123,111 @@ function CopyDefaultFiles {
     }
 }
 
-# if repository Dotnet.DefaultFiles does not exist, clone it
-if (-not (Test-Path $defaultFilesRoot)) {
-    git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git $defaultFilesRoot
+function AddProjectToSolution {
+    param (
+        [string]$ProjectPath
+    )
+    $solutionName = Split-Path -Path (Get-Location) -Leaf
+    $solutionFile = "$solutionName.slnx"
+    if (Test-Path $solutionFile) {
+        dotnet sln add $ProjectPath
+        Write-Host "Added project at '$ProjectPath' to solution '$solutionFile'."
+    } else {
+        Write-Host "Solution file '$solutionFile' does not exist. Cannot add project."
+    }
 }
 
+function CreateCleanArchitectureProjects {
+    param (
+        [string]$SolutionName
+    )
+    $srcPath = "src"
+    $testsPath = "tests"
+    $projects = @(
+        @{ Name = "$SolutionName.Domain"; Path = "$srcPath/Domain"; Template = "classlib" },
+        @{ Name = "$SolutionName.Application"; Path = "$srcPath/Application"; Template = "classlib"; ProjectReference = "$SolutionName.Domain" },
+        @{ Name = "$SolutionName.Infrastructure"; Path = "$srcPath/Infrastructure"; Template = "classlib"; ProjectReference = "$SolutionName.Application" },
+        @{ Name = "$SolutionName.Application.Tests"; Path = "$testsPath/Application.Tests"; Template = "xunit"; ProjectReference = "$SolutionName.Application" },
+        @{ Name = "$SolutionName.Infrastructure.Tests"; Path = "$testsPath/Infrastructure.Tests"; Template = "xunit"; ProjectReference = "$SolutionName.Infrastructure" }
+    )
+    foreach ($proj in $projects) {
+        if (-not (Test-Path $proj.Path)) {
+            dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path)
+            if ($proj.ProjectReference) {
+                $projFile = Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj"
+                $referenceFolder = $proj.ProjectReference.Split('.')[-1]
+                $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($proj.ProjectReference).csproj"
+                dotnet add $projFile reference $referenceProjFile
+            }
+            AddProjectToSolution -ProjectPath (Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj")
+            Write-Host "Created $($proj.Name) project in $($proj.Path)"
+        } else {
+            Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
+        }
+    }
+}
 
+function CreateBlazorProject {
+    param (
+        [string]$SolutionName
+    )
+    $srcPath = "src"
+    $project = @{ Name = "$SolutionName.Web"; Path = "$srcPath/Web"; Template = "blazor"; Options = @("--interactivity",  "Auto"); ProjectReference = "$SolutionName.Application" }
+    if (-not (Test-Path $project.Path)) {
+        dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options)
+        if ($project.ProjectReference) {
+            $projFile = Join-Path -Path $project.Path -ChildPath "$($project.Name).csproj"
+            $referenceFolder = $project.ProjectReference.Split('.')[-1]
+            $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
+            dotnet add $projFile reference $referenceProjFile
+        }
+        Write-Host "Created $($proj.Name) project in $($proj.Path)"
+    } else {
+        Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
+    }
+    # add all project to solution
+    $projFile = Join-Path -Path $project.Path -ChildPath "$($project.Name).csproj"
+    if (Test-Path $projFile) {
+        dotnet sln add $projFile
+        Write-Host "Added $($proj.Name) to solution."
+    } else {
+        Write-Host "Project file $projFile does not exist. Skipping adding to solution."
+    }
+    AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web/$($project.Name).csproj")
+    AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web/$($project.Name).Client.csproj")
+}
+
+function CreateWebApiProject {
+    param (
+        [string]$SolutionName
+    )
+    $srcPath = "src"
+    $project = @{ Name = "$SolutionName.WebApi"; Path = "$srcPath/WebApi"; Template = "webapi"; ProjectReference = "$SolutionName.Application" }
+    if (-not (Test-Path $project.Path)) {
+        dotnet new $($project.Template) -n $($project.Name) -o $($project.Path)
+        if ($project.ProjectReference) {
+            $projFile = Join-Path -Path $project.Path -ChildPath "$($project.Name).csproj"
+            $referenceFolder = $project.ProjectReference.Split('.')[-1]
+            $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
+            dotnet add $projFile reference $referenceProjFile
+        }
+        AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebApi/$($project.Name).csproj")
+        Write-Host "Created $($proj.Name) project in $($proj.Path)"
+    } else {
+        Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
+    }
+}
+
+if (-not (Test-Path $defaultFilesRoot)) {
+    $archivePath = "$defaultFilesRoot.tar.gz"
+    curl -L -o $archivePath https://github.com/TirsvadCLI/Dotnet.DefaultFiles/archive/refs/tags/v0.1.0.tar.gz
+    tar -xzf $archivePath -C ..
+    $extractedDir = "..\Dotnet.DefaultFiles-0.1.0"
+    if (Test-Path $extractedDir) {
+        Rename-Item -Path $extractedDir -NewName (Split-Path $defaultFilesRoot -Leaf)
+    }
+    Remove-Item $archivePath
+}
 
 if ($taskList -contains "files") {
     EnsureDirectoriesExist -Directories $Directories
@@ -138,7 +237,7 @@ if ($taskList -contains "files") {
 
 if ($taskList -contains "arch") {
     $solutionName = Split-Path -Path (Get-Location) -Leaf
-    $solutionFile = "$solutionName.sln"
+    $solutionFile = "$solutionName.slnx"
     if (-not (Test-Path $solutionFile)) {
         dotnet new sln -n $solutionName
         Write-Host "Created solution: $solutionFile"
@@ -146,57 +245,15 @@ if ($taskList -contains "arch") {
         Write-Host "Solution $solutionFile already exists. Skipping."
     }
 }
-If ($taskList -contains "arch") {
-    # Create Clean Architecture projects
-    $srcPath = "src"
-    $testsPath = "tests"
 
-    $projects = @(
-        @{ Name = "$solutionName.Domain"; Path = "$srcPath/Domain"; Template = "classlib" },
-        @{ Name = "$solutionName.Application"; Path = "$srcPath/Application"; Template = "classlib"; ProjectReference = "$solutionName.Domain" },
-        @{ Name = "$solutionName.Infrastructure"; Path = "$srcPath/Infrastructure"; Template = "classlib"; ProjectReference = "$solutionName.Application" },
-        @{ Name = "$solutionName.Application.Tests"; Path = "$testsPath/Application.Tests"; Template = "xunit"; ProjectReference = "$solutionName.Application" },
-        @{ Name = "$solutionName.Infrastructure.Tests"; Path = "$testsPath/Infrastructure.Tests"; Template = "xunit"; ProjectReference = "$solutionName.Infrastructure" }
-    )
+If ($taskList -contains "arch") {
+    CreateCleanArchitectureProjects -SolutionName $solutionName
 }
 
 If ($taskList -contains "blazor") {
-
-    # if argument blazor is passed, add a Blazor WebAssembly project
-    $projects += @{ Name = "$solutionName.Web"; Path = "$srcPath/Web"; Template = "blazor"; ProjectReference = "$solutionName.Application" }
+    CreateBlazorProject -SolutionName $solutionName
 }
 
 if ($taskList -contains "api") {
-
-    # if argument api or blazor is passed, add a Web API project
-    if ($args.Count -gt 1 -and ($args[1].ToLower() -eq "api" -or $args[1].ToLower() -eq "blazor")) {
-        $projects += @{ Name = "$solutionName.WebApi"; Path = "$srcPath/WebApi"; Template = "webapi"; ProjectReference = "$solutionName.Infrastructure" }
-    }
+    CreateWebApiProject -SolutionName $solutionName
 }
-
-foreach ($proj in $projects) {
-    if (-not (Test-Path $proj.Path)) {
-        dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path)
-        if ($proj.ProjectReference) {
-            $projFile = Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj"
-            $referenceFolder = $proj.ProjectReference.Split('.')[-1]
-            $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($proj.ProjectReference).csproj"
-            dotnet add $projFile reference $referenceProjFile
-        }
-        Write-Host "Created $($proj.Name) project in $($proj.Path)"
-    } else {
-        Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
-    }
-}
-
-# add all project to solution
-foreach ($proj in $projects) {
-    $projFile = Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj"
-    if (Test-Path $projFile) {
-        dotnet sln add $projFile
-        Write-Host "Added $($proj.Name) to solution."
-    } else {
-        Write-Host "Project file $projFile does not exist. Skipping adding to solution."
-    }
-}
-
