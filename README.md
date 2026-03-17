@@ -49,8 +49,20 @@ The folder structure will be created as follows:
 MyBlazorApp/
 ├── src/
 │   ├── Domain/                                     # Business logic and entities
+│   │   ├── Entities/                               # Domain entities
+│   │   ├── Interfaces/                             # Domain interfaces
+│   │   └── ValueObjects/                           # Domain value objects
 │   ├── Application/                                # Application services and use cases
+│   │   ├── Services/                               # Application services
+│   │   ├── Helpers/                                # Application helpers
+│   │   ├── Managers/                               # Application managers
+│   │   ├── Mappers/                                # Application mappers
+│   │   ├── DTOs/                                   # Data transfer objects
+│   │   └── Interfaces/                             # Application interfaces
 │   ├── Infrastructure/                             # Data access, external services
+│   │   ├── Persistence/                            # Database context and repositories
+│   │   │   └── Configuration/                      # Database configuration files 
+│   │   └── Repositories/                           # Repository implementations
 │   ├── Web/                                        # Web UI projects
 │   │   ├── TirsvadCLI.TestingScript.Web/           # Blazor project
 │   │   └── TirsvadCLI.TestingScript.Web.Client/    # Blazor WebAssembly project

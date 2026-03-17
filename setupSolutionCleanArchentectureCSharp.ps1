@@ -1,5 +1,40 @@
-# This script sets up a clean architecture solution structure for a C# project.
-# It creates necessary directories, hard links, and copies files from a default source.
+<#
+.SYNOPSIS
+    Sets up a Clean Architecture solution structure for a C# project.
+
+.DESCRIPTION
+    This script automates the creation of a Clean Architecture .NET solution, including directory structure, project scaffolding, and default file setup.
+    It supports initializing solution files, creating hard links and copies of default files, and adding Blazor or Web API projects as needed.
+    The script is intended for use in repositories following the Tirsvad Clean Architecture conventions.
+
+.PARAMETER Command
+    The main command to execute. Supported values:
+        files   - Only create directories, hardlink, and copy default files.
+        arch    - Only setup Clean Architecture solution and projects (Domain, Application, Infrastructure).
+        all     - Run both files and architecture setup (default).
+        blazor  - Add Blazor WebAssembly and server project (frontend/backend) including API.
+        api     - Add Web API project (backend) including architecture setup and files.
+        help    - Show usage instructions.
+
+.EXAMPLE
+    ./setupSolutionCleanArchentectureCSharp.ps1
+    # Runs the default setup: creates directories, copies files, and sets up Clean Architecture projects.
+
+.EXAMPLE
+    ./setupSolutionCleanArchentectureCSharp.ps1 files
+    # Only creates directories, hardlinks, and copies default files.
+
+.EXAMPLE
+    ./setupSolutionCleanArchentectureCSharp.ps1 blazor
+    # Sets up Clean Architecture and adds Blazor frontend/backend projects.
+
+.NOTES
+    - Requires Git and .NET SDK installed.
+    - Clones or updates the Dotnet.DefaultFiles repository for default file templates.
+    - Solution file is named [solutionname].slnx, matching the root folder name.
+    - Follows conventions described in .github/copilot-instructions.md.
+
+#>
 
 # Print help message and exit if argument is 'help'
 if ($args.Count -gt 0 -and $args[0].ToLower() -eq "help") {
