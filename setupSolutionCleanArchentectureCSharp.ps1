@@ -245,9 +245,9 @@ function CreateWebApiProject {
 
 if (-not (Test-Path $defaultFilesRoot)) {
     $archivePath = "$defaultFilesRoot.tar.gz"
-    curl -L -o $archivePath https://github.com/TirsvadCLI/Dotnet.DefaultFiles/archive/refs/tags/v0.1.0.tar.gz
+    curl -L -o $archivePath https://github.com/TirsvadCLI/Dotnet.DefaultFiles/archive/refs/tags/v0.1.1.tar.gz
     tar -xzf $archivePath -C ..
-    $extractedDir = "..\Dotnet.DefaultFiles-0.1.0"
+    $extractedDir = "..\Dotnet.DefaultFiles-0.1.1"
     if (Test-Path $extractedDir) {
         Rename-Item -Path $extractedDir -NewName (Split-Path $defaultFilesRoot -Leaf)
     }
