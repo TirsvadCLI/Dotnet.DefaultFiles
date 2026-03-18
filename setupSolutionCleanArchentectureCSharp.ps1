@@ -92,7 +92,8 @@ $Directories = @(
     ".github/prompts",
     "src",
     "tests",
-    "docs"
+    "docs",
+    "docs/doxygen"
 )
 
 $toHardlink = @(
@@ -108,7 +109,7 @@ $toCopy = @(
     "Directory.Build.props",
     "Directory.Packages.props",
     "LICENSE",
-    ".gitignore"
+    ".editorconfig"
 )
 
 $cleanArchitectureDomainDirectories = @(
