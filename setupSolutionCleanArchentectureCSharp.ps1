@@ -53,12 +53,48 @@ param (
   [switch]$Blazor,
   [switch]$Api,
   [switch]$Help,
-  [string]$DefaultFilesSrc,
+  [string]$defaultFilesRoot,
   [string]$SolutionFile
 )
 
-# Print help message and exit if argument is 'help'
-if ($Help) {
+if ($lower -in @('blazor','api','arch','files','help')) {
+  switch ($lower) {
+    'blazor' { $Blazor = $true; $Arch = $true; $Files = $true }
+    'api'    { $Api    = $true; $Arch = $true; $Files = $true }
+    'arch'   { $Arch   = $true }
+    'files'  { $Files  = $true }
+    'help'   { $Help   = $true }
+  }
+} else {
+  $Arch = $true
+  $Files = $true
+}
+
+function Create-TaskList {
+  param (
+    [switch]$Files,
+    [switch]$Arch,
+    [switch]$Blazor,
+    [switch]$Api,
+    [switch]$Help
+  )
+  $taskList = @()
+  if ($Blazor) {
+    $taskList += "blazor"
+  } 
+  if ($Api) {
+    $taskList += "api"
+  } 
+  if ($Arch) {
+    $taskList += "arch"
+  } 
+  if ($Files) {
+    $taskList += "files"
+  } 
+  return $taskList
+}
+
+function Write-help {
   Write-Host "Usage: setupSolutionCleanArchentectureCSharp.ps1 Command"
   Write-Host "Switches:"
   Write-Host "  files   - Only create directories, hardlink, and copy default files"
@@ -66,53 +102,45 @@ if ($Help) {
   Write-Host "  blazor  - Add Blazor WebAssembly and server project (frontend/backend) including architecture setup and files"
   Write-Host "  api     - Add Web API project (backend) including architecture setup and files"
   Write-Host "  help    - Show this help message"
+}
+
+function Fetch-DefaultSource {
+  param (
+    [string]$DefaultFilesRoot
+  )
+  if ([string]::IsNullOrWhiteSpace($DefaultFilesRoot)) {
+    $Subfolder =  Get-Item -Path (Join-Path -Path (Get-Location) -ChildPath "..")
+    $DefaultFilesRoot = Join-Path -Path "$Subfolder" -ChildPath "TirsvadCLI.Dotnet.DefaultFiles"
+    # Define the root path where the original files are located
+    if (-not (Test-Path "$DefaultFilesRoot")) {
+      Write-Host "TirsvadCLI.Dotnet.DefaultFiles not found. Cloning from GitHub..."
+      Push-Location ..
+      git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git
+      mv "Dotnet.DefaultFiles" "$DefaultFilesRoot"
+      Pop-Location
+    } else {
+      Write-Host "TirsvadCLI.Dotnet.DefaultFiles already exists. Pulling latest changes from GitHub..."
+      Push-Location ..
+      git pull origin main
+      Pop-Location
+    }
+  } else {
+    if (-not (Test-Path "$DefaultFilesRoot")) {
+      Write-Host "Provided DefaultFilesSrc path '$DefaultFilesRoot' does not exist. Exiting."
+      exit(1)
+    }
+  }
+  return $DefaultFilesRoot
+}
+
+# Print help message and exit if argument is 'help'
+if ($Help) {
+  Write-help
   exit
 }
+$taskList = Create-TaskList -Files $Files -Arch $Arch -Blazor $Blazor -Api $Api -Help $Help
+$defaultFilesRoot = Fetch-DefaultSource -defaultFilesRoot $defaultFilesRoot
 
-$taskList = @()
-
-# Add Argument Command to taskList using a case structure
-if ($Blazor) {
-  $taskList += "blazor"
-  $taskList += "arch"
-  $taskList += "files"
-} elseif ($Api) {
-  $taskList += "api"
-  $taskList += "arch"
-  $taskList += "files"
-} elseif ($Arch) {
-  $taskList += "arch"
-} elseif ($Files) {
-  $taskList += "files"
-} else {
-  # Default to all if no specific command is provided
-  $taskList += "files"
-  $taskList += "arch"
-}
-
-if ([string]::IsNullOrWhiteSpace($DefaultFilesSrc)) {
-  $Subfolder =  Get-Item -Path (Join-Path -Path (Get-Location) -ChildPath "..")
-  $DefaultFilesSrc = join-path -path "$Subfolder" -childpath "TirsvadCLI.Dotnet.DefaultFiles"
-  # Define the root path where the original files are located
-  if (-not (Test-Path "$DefaultFilesSrc")) {
-    Write-Host "TirsvadCLI.Dotnet.DefaultFiles not found. Cloning from GitHub..."
-    Push-Location ..
-    git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git
-    mv "Dotnet.DefaultFiles" "$DefaultFilesSrc"
-    Pop-Location
-  } else {
-    Write-Host "TirsvadCLI.Dotnet.DefaultFiles already exists. Pulling latest changes from GitHub..."
-    Push-Location ..
-    git pull origin main
-    Pop-Location
-  }
-  $defaultFilesRoot = $DefaultFilesSrc
-} else {
-  if (-not (Test-Path "$DefaultFilesSrc")) {
-    Write-Host "Provided DefaultFilesSrc path '$DefaultFilesSrc' does not exist. Exiting."
-    exit(1)
-  }
-}
 
 if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
@@ -216,18 +244,7 @@ function CreateHardLink {
       Write-Host "Source '$source' is a directory. Recursively creating hard links for all files in the directory."
       $files = Get-ChildItem -Path $source -Recurse -File
       foreach ($file in $files) {
-
-        #TODO: Why filename gets fullname as part of name
         $relativePath = [System.IO.Path]::GetRelativePath($defaultFilesRoot, $file.FullName).TrimStart('\','/')
-
-        # get relative path after folder $defaultFilesProject in $file
-        #$index = $file.FullName.IndexOf($defaultFilesProject)
-        #if ($index -ge 0) {
-        #  $relativePath = $file.FullName.Substring($index + $defaultFilesProject.Length).TrimStart('\','/')
-        #} else {
-        #  $relativePath = $file.FullName
-        #}
-        #Write-Host "Processing file '$($file.FullName)' for hard linking..."
         $destination = Join-Path -Path "." -ChildPath "$relativePath"
         if (Test-Path $destination) {
           $destinationFullPath = (Resolve-Path $destination).Path
@@ -384,7 +401,7 @@ dotnet new install xunit.v3.templates
 if ($taskList -contains "files") {
   CreateDirectories -Directories $Directories
   CopyDefaultFiles -Files $toCopy
-  CreateHardLink -HardLinks $toHardlink -DefaultFilesRoot $DefaultFilesSrc
+  CreateHardLink -HardLinks $toHardlink -DefaultFilesRoot $defaultFilesRoot
 }
 
 if ($taskList -contains "arch") {
