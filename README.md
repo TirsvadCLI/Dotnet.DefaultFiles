@@ -40,7 +40,7 @@ We will create a new folder named `MyBlazorApp`, download the setup script, and 
 mkdir MyBlazorApp
 cd MyBlazorApp
 curl -LJO https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1
-./setupSolutionCleanArchentectureCSharp.ps1 blazor
+./setupSolutionCleanArchentectureCSharp.ps1 blazor api
 ```
 
 The folder structure will be created as follows:
@@ -64,8 +64,8 @@ MyBlazorApp/
 │   │   │   └── Configuration/                      # Database configuration files 
 │   │   └── Repositories/                           # Repository implementations
 │   ├── Web/                                        # Web UI projects
-│   │   ├── TirsvadCLI.TestingScript.Web/           # Blazor project
-│   │   └── TirsvadCLI.TestingScript.Web.Client/    # Blazor WebAssembly project
+│   │   ├── MyBlazorApp.Web/                        # Blazor project
+│   │   └── MyBlazorApp.Web.Client/                 # Blazor WebAssembly project
 │   └── WebApi                                      # Web API project
 ├── docs/                                           # Documentation and design files
 ├── tests/                                          # Test projects
