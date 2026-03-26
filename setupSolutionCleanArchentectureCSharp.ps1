@@ -138,7 +138,8 @@ if ($Help) {
   Write-help
   exit
 }
-$taskList = Create-TaskList -Files $Files -Arch $Arch -Blazor $Blazor -Api $Api -Help $Help
+
+$taskList = Create-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -Api:$Api -Help:$Help
 $defaultFilesRoot = Fetch-DefaultSource -defaultFilesRoot $defaultFilesRoot
 
 

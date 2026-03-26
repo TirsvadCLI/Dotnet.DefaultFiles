@@ -20,28 +20,21 @@ Dotnet.DefaultFiles serves as a starting point for .NET development. It includes
 ## Setup & Usage
 
 ### Initializing a New Project
+1. Create a folder with the name of your new solution. (e.g., `mkdir MyNewSolution`)
+2. Go to the new folder. (e.g., `cd MyNewSolution`)
 
-1. Create a folder with the name of your new solution.
-2. Download the `setupSolutionCleanArchentectureCSharp.ps1` script from this repository and place it in the new folder.
-```powershell
-  curl -LJO https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1
-```
-3. Run the provided PowerShell script to scaffold a new solution:
-```powershell
-./setupSolutionCleanArchentectureCSharp.ps1
-```
+#### Windows PowerShell
+3. Download and run script to scaffold:
+  - Scaffold a new solution with Clean Architecture principles:
+  ```powershell
+  iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1')
+  ```
+  - Scaffold a new Blazor project with Clean Architecture principles and WebApi:
+  ```powershell
+  iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1 -Blazor -Api')
+  ```
+
 This will create the recommended folder structure, add default files, and configure the solution for Clean Architecture.
-
-#### Example with a blazor project:
-
-We will create a new folder named `MyBlazorApp`, download the setup script, and run it to scaffold a new Blazor project with Clean Architecture principles:
-
-```powershell
-mkdir MyBlazorApp
-cd MyBlazorApp
-curl -LJO https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1
-./setupSolutionCleanArchentectureCSharp.ps1 blazor api
-```
 
 The folder structure will be created as follows:
 
@@ -63,10 +56,10 @@ MyBlazorApp/
 │   │   ├── Persistence/                            # Database context and repositories
 │   │   │   └── Configuration/                      # Database configuration files 
 │   │   └── Repositories/                           # Repository implementations
-│   ├── Web/                                        # Web UI projects
+│   ├── Web/                                        # Web UI projects (if selected)
 │   │   ├── MyBlazorApp.Web/                        # Blazor project
 │   │   └── MyBlazorApp.Web.Client/                 # Blazor WebAssembly project
-│   └── WebApi                                      # Web API project
+│   └── WebApi                                      # Web API project (if selected)
 ├── docs/                                           # Documentation and design files
 ├── tests/                                          # Test projects
 └── .github                                         # GitHub configuration files
