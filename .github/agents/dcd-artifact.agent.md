@@ -33,7 +33,10 @@ This agent MUST strictly follow all templates, syntax, and command patterns defi
 - Validate DCDs for completeness, clarity, and template compliance as per instructions.
 
 ## Agent Workflow
-1. **Input**: Accept a use case SD file path (e.g., `docs/use-cases/uc-XXX/uc-XXX.sd.YYYY.md`).
+If working with Clean Architecture, split the Domain Class Diagram (DCD) into two diagrams: one for the Domain layer and one for the Application layer.
+If a WebAPI is present, add a third diagram specifically for the WebAPI area.
+The result should be a separate diagram for each architectural area (Domain, Application, WebAPI, etc.), ensuring clear separation and documentation for each.
+1. **Input**: Accept a use case SD file path (e.g., `docs/use-cases/uc-XXX/uc-XXX.sd.md`).
 2. **Analyze SD**: Parse the SD to identify domain classes, DTOs, services, and controller interactions.
 3. **Check Solution DCD**: Load `docs/dcd.*.md` and compare for reusable classes/interfaces.
 4. **Check Use Case DCD**: If a DCD for the use case exists, load and compare for needed updates.

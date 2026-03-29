@@ -16,6 +16,8 @@ This repository provides a template for initializing .NET projects with default 
 Dotnet.DefaultFiles serves as a starting point for .NET development. It includes:
 - Standard files for solution and project setup
 - PowerShell script for creating a new Clean Architecture project
+- Quality criteria for artifacts and code
+- Copilot agents, instructions and prompts for generating artifacts, code and documentation.
 
 ## Setup & Usage
 
