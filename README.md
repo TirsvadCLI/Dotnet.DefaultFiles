@@ -8,6 +8,7 @@ This repository provides a template for initializing .NET projects with default 
 
 - [Overview](#overview)
 - [Setup & Usage](#setup--usage)
+- [Script Arguments and Usage](#script-arguments-and-usage)
 - [Default Files Included](#default-files-included)
 - [Workflow](#workflow)
 
@@ -41,6 +42,48 @@ Dotnet.DefaultFiles serves as a starting point for .NET development. It includes
 This will create the recommended folder structure, add default files, and configure the solution for Clean Architecture.
 
 The folder structure will be created as follows:
+
+## Script Arguments and Usage
+
+The `setupSolutionCleanArchentectureCSharp.ps1` script supports several arguments to customize the solution setup:
+
+**Arguments:**
+
+| Switch         | Description                                                                                       |
+|---------------|---------------------------------------------------------------------------------------------------|
+| `-Files`      | Only create directories, hardlink, and copy default files.                                         |
+| `-Arch`       | Only set up Clean Architecture solution and projects (Domain, Application, Infrastructure).        |
+| `-Blazor`     | Set up Clean Architecture and add Blazor WebAssembly and server projects (frontend/backend)        |
+| `-Api`        | Set up Clean Architecture and add a Web API project (backend)                                      |
+| `-Help`       | Show usage instructions and exit.                                                                  |
+| `-defaultFilesRoot <path>` | Optional path to a custom source for default files.                                   |
+| `-SolutionFile <file>`     | Optional custom solution file name.                                                   |
+| `-framework <version>`     | Optional .NET target framework (default: net10.0).                                   |
+
+**Examples:**
+
+```powershell
+# Default setup: directories, files, and Clean Architecture projects
+./setupSolutionCleanArchentectureCSharp.ps1
+
+# Only create directories and copy default files
+./setupSolutionCleanArchentectureCSharp.ps1 -Files
+
+# Only set up Clean Architecture projects (no file copying)
+./setupSolutionCleanArchentectureCSharp.ps1 -Arch
+
+# Set up Clean Architecture and add Blazor frontend/backend
+./setupSolutionCleanArchentectureCSharp.ps1 -Blazor
+
+# Set up Clean Architecture and add Web API backend
+./setupSolutionCleanArchentectureCSharp.ps1 -Api
+
+# Show help
+./setupSolutionCleanArchentectureCSharp.ps1 -Help
+
+# Use a custom default files source and solution file name
+./setupSolutionCleanArchentectureCSharp.ps1 -defaultFilesRoot "../MyDefaults" -SolutionFile "MySolution.slnx"
+```
 
 ```plaintext
 MyBlazorApp/

@@ -54,7 +54,8 @@ param (
   [switch]$Api,
   [switch]$Help,
   [string]$defaultFilesRoot,
-  [string]$SolutionFile
+  [string]$SolutionFile,
+  [String]$framework = "net10.0"
 )
 
 if ($lower -in @('blazor','api','arch','files','help')) {
@@ -70,6 +71,19 @@ if ($lower -in @('blazor','api','arch','files','help')) {
   $Files = $true
 }
 
+<#
+    Creates a list of tasks to perform based on the provided switches.
+    .PARAMETER Files
+        Switch. If specified, includes file setup tasks.
+    .PARAMETER Arch
+        Switch. If specified, includes architecture setup tasks.
+    .PARAMETER Blazor
+        Switch. If specified, includes Blazor project setup tasks.
+    .PARAMETER Api
+        Switch. If specified, includes API project setup tasks.
+    .PARAMETER Help
+        Switch. If specified, includes help task.
+#>
 function Create-TaskList {
   param (
     [switch]$Files,
@@ -94,6 +108,9 @@ function Create-TaskList {
   return $taskList
 }
 
+<#
+    Displays usage instructions for the script.
+#>
 function Write-help {
   Write-Host "Usage: setupSolutionCleanArchentectureCSharp.ps1 Command"
   Write-Host "Switches:"
@@ -104,6 +121,20 @@ function Write-help {
   Write-Host "  help    - Show this help message"
 }
 
+<#
+  This function checks for the presence of the default files directory.
+  If it doesn't exist, it clones the repository from GitHub.
+  If it does exist, it pulls the latest changes.
+  If a custom path is provided, it validates that the path exists.
+#>
+<#
+    Checks for the presence of the default files directory.
+    If it doesn't exist, clones the repository from GitHub.
+    If it does exist, pulls the latest changes.
+    If a custom path is provided, validates that the path exists.
+    .PARAMETER DefaultFilesRoot
+        String. Optional path to the default files root directory.
+#>
 function Fetch-DefaultSource {
   param (
     [string]$DefaultFilesRoot
@@ -153,17 +184,24 @@ $Directories = @(
   ".github/instructions",
   ".github/prompts",
   ".github/agents",
+  "docs/quality-criteria",
+  "docs/quality-criteria/hld",
+  "docs/quality-criteria/lld",
+  "docs/quality-criteria/code",
   "src",
   "tests",
   "docs",
-  "docs/doxygen"
+  "docs/doxygen",
+  "docs/adr",
+  "docs/use-cases"
 )
 
 $toHardlink = @(
   ".github/copilot-instructions.md",
   ".github/instructions",
   ".github/prompts",
-  ".github/agents"
+  ".github/agents",
+  "docs/quality-criteria"
 )
 
 $toCopy = @(
@@ -172,8 +210,7 @@ $toCopy = @(
   "Directory.Build.props",
   "Directory.Packages.props",
   "LICENSE",
-  ".editorconfig",
-  "docs"
+  ".editorconfig"
 )
 
 $cleanArchitectureDomainDirectories = @(
@@ -197,6 +234,13 @@ $cleanArchitectureInfrastructureDirectories = @(
   "src/Infrastructure/Repositories"
 )
 
+<#
+    Creates directories from a list. Optionally adds a .gitkeep file to each directory.
+    .PARAMETER Directories
+        Array of directory paths to create.
+    .PARAMETER AddGitkeep
+        Boolean. If true, adds a .gitkeep file to each directory.
+#>
 function CreateDirectories {
   param (
     [string[]]$Directories,
@@ -216,6 +260,18 @@ function CreateDirectories {
   }
 }
 
+<#
+  This function creates hard links for files. If the destination file already exists, it skips creating the hard link and logs a message.
+  It takes two parameters: the source file path and the destination file path.
+  If the destination file already exists, it logs a message and does not attempt to create the hard link.
+#>
+<#
+    Creates a hard link for a file if the destination does not already exist.
+    .PARAMETER source
+        Source file path.
+    .PARAMETER destination
+        Destination file path for the hard link.
+#>
 function CreateHardLinksForFiles {
   param (
     [string]$source,
@@ -229,6 +285,19 @@ function CreateHardLinksForFiles {
   }
 }
 
+<#
+  This function processes a list of files or directories to create hard links. It checks if the source is a file or a directory and handles each case accordingly.
+  If the source is a file, it creates a hard link directly. If the source is a directory, it recursively creates hard links for all files within that directory, maintaining the relative path structure.
+  If the source does not exist, it logs a message and skips processing that item.
+#>
+<#
+    Processes a list of files or directories to create hard links.
+    Handles both files and directories recursively.
+    .PARAMETER HardLinks
+        Array of file or directory paths to hard link.
+    .PARAMETER DefaultFilesRoot
+        Root directory for default files.
+#>
 function CreateHardLink {
   param (
     [string[]]$HardLinks,
@@ -263,6 +332,11 @@ function CreateHardLink {
   }
 }
 
+<#
+    Copies default files from the default files root to the current directory if they do not already exist.
+    .PARAMETER Files
+        Array of file paths to copy.
+#>
 function CopyDefaultFiles {
   param (
     [string[]]$Files
@@ -284,6 +358,15 @@ function CopyDefaultFiles {
   }
 }
 
+<#
+    Adds a project to the solution file, optionally under a solution folder.
+    .PARAMETER SolutionFile
+        Path to the solution file.
+    .PARAMETER ProjectPath
+        Path to the project file to add.
+    .PARAMETER SolutionFolder
+        Solution folder to add the project under (optional).
+#>
 function AddProjectToSolution {
   param (
     [string]$SolutionFile,
@@ -303,6 +386,12 @@ function AddProjectToSolution {
   }
 }
 
+<#
+    Creates Clean Architecture projects (Domain, Application, Infrastructure, and their test projects).
+    Adds references and folders as needed.
+    .PARAMETER SolutionName
+        Name of the solution (used for project naming).
+#>
 function CreateCleanArchitectureProjects {
   param (
       [string]$SolutionName
@@ -319,7 +408,7 @@ function CreateCleanArchitectureProjects {
   )
   foreach ($proj in $projects) {
     if (-not (Test-Path $proj.Path)) {
-      dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path)
+      dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path) --framework $framework
       if ($proj.ProjectReference) {
         $projFile = Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj"
         $referenceFolder = ($proj.ProjectReference.Split('.') | Select-Object -Last 1)
@@ -337,6 +426,11 @@ function CreateCleanArchitectureProjects {
   CreateDirectories -Directories $cleanArchitectureInfrastructureDirectories -AddGitkeep $true
 }
 
+<#
+    Creates Blazor WebAssembly and Server projects and adds them to the solution.
+    .PARAMETER SolutionName
+        Name of the solution (used for project naming).
+#>
 function CreateBlazorProject {
   param (
     [string]$SolutionName
@@ -370,6 +464,11 @@ function CreateBlazorProject {
   AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web.Client/$($project.Name).Client.csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
 }
 
+<#
+    Creates a Web API project and adds it to the solution.
+    .PARAMETER SolutionName
+        Name of the solution (used for project naming).
+#>
 function CreateWebApiProject {
   param (
     [string]$SolutionName
