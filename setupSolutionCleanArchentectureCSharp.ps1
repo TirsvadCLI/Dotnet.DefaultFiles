@@ -163,7 +163,7 @@ $toHardlink = @(
   ".github/copilot-instructions.md",
   ".github/instructions",
   ".github/prompts",
-  ".github/agents",
+  ".github/agents"
 )
 
 $toCopy = @(
@@ -173,7 +173,7 @@ $toCopy = @(
   "Directory.Packages.props",
   "LICENSE",
   ".editorconfig",
-  "docs",
+  "docs"
 )
 
 $cleanArchitectureDomainDirectories = @(
