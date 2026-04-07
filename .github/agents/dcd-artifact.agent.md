@@ -14,6 +14,7 @@ references:
   - docs/dcd.*.md
   - docs/use-cases/uc-<id>/uc-<id>.sd.*.md
   - docs/use-cases/uc-<id>/uc-<id>.dcd.*.md
+  - docs/glossary.md
   - .github/instructions/dcd.instructions.md
 ---
 

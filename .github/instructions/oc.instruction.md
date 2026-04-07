@@ -1,12 +1,13 @@
 ---
-description: 'Operation Constract (OC) quality requirements and template for project documentation.'
-applyTo: 'docs/use-cases/**/uc*.oc.*.md'
+description: 'Operation Contract (OC) quality requirements and template for project documentation.'
+applyTo: 'docs/use-cases/**/uc*.oc.md'
+reference: 'docs/quality-criteria/ood/lld/qc-oc.md'
 ---
 
 # OC Instructions (Summary)
 - Use the provided OC markdown template.
 - Replace all placeholders with project-specific content.
-- Store OC files in `docs/use-cases/uc-<Insert Use Case Identifier>*/` as `uc-<Insert Use Case Identifier>.oc.<Insert Version>.md`.
+- Store OC files in `docs/use-cases/uc-<Insert Use Case Identifier>*/` as `uc-<Insert Use Case Identifier>.oc.md`.
 - Increment version numbers for significant changes; keep only the latest version in main, archive older versions.
 - Include metadata, version log (with date, author), and use Mermaid diagram.
 - Create files in English.
@@ -22,7 +23,7 @@ applyTo: 'docs/use-cases/**/uc*.oc.*.md'
 ## Version Log
 | Version | Date       | Description              | Author     |
 |---------|------------|--------------------------|------------|
-| 0001    | [Insert Today Date yyyy-mm-dd] | Initial                  | Project owner | 
+| 0001    | [Insert Today Date yyyy-mm-dd] | Initial                  | <Insert Author Name> | 
 ```
 
 ```markdown
@@ -46,7 +47,7 @@ applyTo: 'docs/use-cases/**/uc*.oc.*.md'
 ## Version Log
 | Version | Date       | Description | Author |
 |---------|------------|-------------|--------|
-| 0001    | [date]     | Initial     | Team 6 |
+| 0001    | [date]     | Initial     | Tirsvad |
 
 ## Operation Contract
 ### Request Medicine Status

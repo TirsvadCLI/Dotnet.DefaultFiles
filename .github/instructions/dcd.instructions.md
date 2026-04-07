@@ -1,8 +1,8 @@
 ---
 description: 'Domain Class Diagram (DCD) quality requirements and template for project documentation.'
-applyTo: '**/docs/dcd.*.md' and '**/use-cases/**/uc*.dcd.*.mdx'
+applyTo: '**/docs/dcd.*.md' and '**/use-cases/**/uc*.dcd.md'
+reference: 'docs/quality-criteria/ood/lld/qc-dcd.md'
 ---
-
 
 # Domain Class Diagram (DCD) Instructions
 
@@ -76,7 +76,7 @@ Each class in the diagram should be placed in the appropriate namespace accordin
 ## Version Log
 | Version | Date       | Description              | Author     |
 |---------|------------|--------------------------|------------|
-| 0001    | [yyyy-mm-dd] | Initial                  | Team 6     |
+| 0001    | [yyyy-mm-dd] | Initial                  | <Insert Author Name> |
 ```
 
 ```mermaid

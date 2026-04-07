@@ -6,6 +6,9 @@ tools:
   - edit/editFiles
   - search
   - lookup
+  - delete
+  - update/glossary
+  - update/crossReference
 references:
   - docs/bc.md
   - .github/instructions/usecase.instructions.md

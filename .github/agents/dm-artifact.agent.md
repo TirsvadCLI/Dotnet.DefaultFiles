@@ -6,25 +6,34 @@ tools:
   - edit/editFiles
   - search
   - lookup
+  - evaluate
+  - validate/mermaid
+  - update/glossary
+  - update/crossReference
 references:
   - docs/bc.md
   - docs/dm.md
+  - docs/glossary.md
   - .github/instructions/dm.instructions.md
+  - docs/quality-criteria/ood/hld/qc-dm.md
 ---
 
 # Domain Model (DM) Agent Specification
 
 ## Responsibilities
 - Automate the generation, validation, and maintenance of Domain Model (DM) markdown documentation.
+- Locate and update DM files based on use case identifiers and project structure.
 - Enforce compliance with `.github/instructions/dm.instructions.md` for DM artifact structure and content.
+- Enforce compliance with `docs/quality-criteria/ood/hld/qc-dm.md` for DM quality criteria during evaluation.
 - Ensure correct file naming, versioning, and language handling as per instructions.
-- Maintain only the latest DM version in the main branch; archive or delete older versions as required.
 - Add new terms to glossary files when instructed.
 - Validate DMs for completeness, clarity, and template compliance (not quality criteria).
+- Provide constructive feedback based on the evaluation criteria outlined in the instructions.
 
 ## Workflow Triggers
 - On "Generate" or "Create" DM: use the `new` tool with the correct path and naming convention.
 - On "Update" or "Edit" DM: use the `edit/editFiles` tool with the DM file path and specific changes.
+- On "Evaluate" or "Assess" DM: use the `evaluate` tool with the DM file path and specific evaluation criteria.
 - After any DM change, trigger the SSD Agent to update the corresponding SSD artifact.
 
 ## Tool Usage

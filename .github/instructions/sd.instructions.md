@@ -1,14 +1,15 @@
 ---
 name: 'Sequence Diagram (SD) Instructions'
 description: 'Sequence Diagram (SD) quality requirements and template for project documentation.'
-applyTo: '**/uc*.sd.*.md'
+applyTo: '**/uc*.sd.md'
+reference: 'docs/quality-criteria/ood/lld/qc-sd.md'
 ---
 
 # SD Instructions (Summary)
 - Use the provided SD markdown template or examples.
 - Replace all placeholders with project-specific content.
-- Store SD files in `docs/use-cases/uc-<Insert Use Case Identifier>*/` as `uc-<Insert Use Case Identifier>.sd.<Insert Version>.md`.
-- Increment version numbers for significant changes; keep only the latest version in main, archive older versions.
+- Store SD files in `docs/use-cases/uc-<Insert Use Case Identifier>*/` as `uc-<Insert Use Case Identifier>.sd.md`.
+- Increment version numbers for significant changes.
 - Include metadata, version log (with date, author), and use Mermaid sequence diagram.
 - Create files in English; if product owner domain language differs, create a separate file with language code suffix.
 - Update glossary files for new terms.
@@ -29,7 +30,7 @@ applyTo: '**/uc*.sd.*.md'
 ## Version Log
 | Version | Date       | Description | Author |
 |---------|------------|-------------|--------|
-| 0001    | [date]     | Initial     | [name] |
+| 0001    | [date]     | Initial     | <Insert Author Name> |
 
 
 ## Sequence Diagram
@@ -108,7 +109,7 @@ sequenceDiagram
 ## Version Log
 | Version | Date       | Description | Author |
 |---------|------------|-------------|--------|
-| 0007    | 2026-06-09 | Change to WebApi→Infrastructure Data Access diagram | Team 6 |
+| 0007    | 2026-06-09 | Change to WebApi→Infrastructure Data Access diagram | <Insert Author Name> |
 
 ## Sequence Diagram
 ```

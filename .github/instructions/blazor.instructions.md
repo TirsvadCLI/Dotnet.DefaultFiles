@@ -1,6 +1,7 @@
 ---
 description: 'Blazor component and application patterns'
 applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
+reference: 'docs/quality-criteria/oop/code/qc-csharp-code.md'
 ---
 
 ## Blazor Code Style and Structure

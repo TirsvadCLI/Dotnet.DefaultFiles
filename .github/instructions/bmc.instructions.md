@@ -42,7 +42,7 @@ Use this as a starting point for any project requiring a BMC. Replace all placeh
 ## Version Log
 | Version | Date       | Description              | Author     |
 |---------|------------|--------------------------|------------|
-| 0001    | 2026-01-20 | Initial                  | project owner |
+| 0001    | 2026-01-20 | Initial                  | <Insert Author Name> |
 
 ```
 

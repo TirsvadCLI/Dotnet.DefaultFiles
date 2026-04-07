@@ -13,10 +13,10 @@
 .PARAMETER Arch
     Switch. If specified, only sets up Clean Architecture solution and projects (Domain, Application, Infrastructure).
 
-.PARAMETER blazor
+.PARAMETER Blazor
     Switch. If specified, sets up Clean Architecture and adds Blazor WebAssembly and server projects (frontend/backend) including API.
 
-.PARAMETER api
+.PARAMETER Api
     Switch. If specified, sets up Clean Architecture and adds a Web API project (backend) including architecture setup and files.
 
 .PARAMETER Help
@@ -53,9 +53,9 @@ param (
   [switch]$Blazor,
   [switch]$Api,
   [switch]$Help,
-  [string]$defaultFilesRoot,
+  [string]$DefaultFilesRoot,
   [string]$SolutionFile,
-  [String]$framework = "net10.0"
+  [String]$Framework = "net10.0"
 )
 
 if ($lower -in @('blazor','api','arch','files','help')) {
@@ -140,19 +140,30 @@ function Fetch-DefaultSource {
     [string]$DefaultFilesRoot
   )
   if ([string]::IsNullOrWhiteSpace($DefaultFilesRoot)) {
-    $Subfolder =  Get-Item -Path (Join-Path -Path (Get-Location) -ChildPath "..")
+    #$Subfolder =  Get-Item -Path (Join-Path -Path (Get-Location) -ChildPath "..").FullName
+    $parentPath = Join-Path -Path (Get-Location) -ChildPath ".."
+    if (Test-Path $parentPath) {
+        $Subfolder = (Get-Item -Path $parentPath).FullName
+        Write-Host "Parent path found: $Subfolder"
+    } else {
+        $Subfolder = ""
+        Write-Host "Parent path '$parentPath' does not exist. Cannot determine subfolder. Exiting."
+        exit(1)
+    }
+    Write-Host "No DefaultFilesSrc provided. Using default path: $Subfolder\\TirsvadCLI.Dotnet.DefaultFiles"
     $DefaultFilesRoot = Join-Path -Path "$Subfolder" -ChildPath "TirsvadCLI.Dotnet.DefaultFiles"
     # Define the root path where the original files are located
     if (-not (Test-Path "$DefaultFilesRoot")) {
       Write-Host "TirsvadCLI.Dotnet.DefaultFiles not found. Cloning from GitHub..."
       Push-Location ..
-      git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git
-      mv "Dotnet.DefaultFiles" "$DefaultFilesRoot"
+      git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git $DefaultFilesRoot | Out-Null
+      #Write-Host $cloneOutput
       Pop-Location
     } else {
       Write-Host "TirsvadCLI.Dotnet.DefaultFiles already exists. Pulling latest changes from GitHub..."
-      Push-Location ..
-      git pull origin main
+      Push-Location ../TirsvadCLI.Dotnet.DefaultFiles
+      git pull origin main | Out-Null
+      #Write-Host $pullOutput
       Pop-Location
     }
   } else {
@@ -161,6 +172,8 @@ function Fetch-DefaultSource {
       exit(1)
     }
   }
+  Write-Host ""
+  Write-Host "Using DefaultFiles root: $DefaultFilesRoot"
   return $DefaultFilesRoot
 }
 
@@ -171,8 +184,9 @@ if ($Help) {
 }
 
 $taskList = Create-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -Api:$Api -Help:$Help
-$defaultFilesRoot = Fetch-DefaultSource -defaultFilesRoot $defaultFilesRoot
+$DefaultFilesRoot = Fetch-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
 
+Write-Host "DefaultFiles root: $DefaultFilesRoot"
 
 if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
@@ -196,7 +210,7 @@ $Directories = @(
   "docs/use-cases"
 )
 
-$toHardlink = @(
+$toCopyByForce = @(
   ".github/copilot-instructions.md",
   ".github/instructions",
   ".github/prompts",
@@ -260,100 +274,37 @@ function CreateDirectories {
   }
 }
 
-<#
-  This function creates hard links for files. If the destination file already exists, it skips creating the hard link and logs a message.
-  It takes two parameters: the source file path and the destination file path.
-  If the destination file already exists, it logs a message and does not attempt to create the hard link.
-#>
-<#
-    Creates a hard link for a file if the destination does not already exist.
-    .PARAMETER source
-        Source file path.
-    .PARAMETER destination
-        Destination file path for the hard link.
-#>
-function CreateHardLinksForFiles {
+function CopyFileAndFolders {
   param (
-    [string]$source,
-    [string]$destination
+    [string[]]$Files,
+    [bool]$Force = $false
   )
-  if (Test-Path -Path $destination) {
-    Write-Host "File '$destination' already exists. Skipping."
-  } else {
-    New-Item -ItemType HardLink -Path $destination -Target $source
-    Write-Host "Created hard link for '$destination'."
-  }
-}
 
-<#
-  This function processes a list of files or directories to create hard links. It checks if the source is a file or a directory and handles each case accordingly.
-  If the source is a file, it creates a hard link directly. If the source is a directory, it recursively creates hard links for all files within that directory, maintaining the relative path structure.
-  If the source does not exist, it logs a message and skips processing that item.
-#>
-<#
-    Processes a list of files or directories to create hard links.
-    Handles both files and directories recursively.
-    .PARAMETER HardLinks
-        Array of file or directory paths to hard link.
-    .PARAMETER DefaultFilesRoot
-        Root directory for default files.
-#>
-function CreateHardLink {
-  param (
-    [string[]]$HardLinks,
-    [string]$DefaultFilesRoot
-  )
-  foreach ($link in $HardLinks) {
-    Write-Host "DefaultFilesRoot $DefaultFilesRoot"
-    $source = Join-Path -Path $defaultFilesRoot -ChildPath $link
-    Write-Host "Processing '$link' for hard linking..."
-    $destination = Join-Path -Path (Get-Location) -ChildPath $link
-    Write-Host "Destination path for '$link' is '$destination'."
-    if ((Test-Path $source) -and ((Get-Item $source).PSIsContainer -eq $false)) {
-      CreateHardLinksForFiles -Source "$source" -Destination "$destination"
-    } elseif ((Test-Path $source) -and ((Get-Item $source).PSIsContainer -eq $true)) {
-      Write-Host "Source '$source' is a directory. Recursively creating hard links for all files in the directory."
-      $files = Get-ChildItem -Path $source -Recurse -File
-      foreach ($file in $files) {
-        $relativePath = [System.IO.Path]::GetRelativePath($defaultFilesRoot, $file.FullName).TrimStart('\','/')
-        $destination = Join-Path -Path "." -ChildPath "$relativePath"
-        if (Test-Path $destination) {
-          $destinationFullPath = (Resolve-Path $destination).Path
+  foreach ($file in $Files) {
+    Write-Host "Processing '$file'..."
+    $source = Join-Path -Path $DefaultFilesRoot -ChildPath $file
+    $destination = Join-Path -Path "." -ChildPath $file
+    if (Test-Path -Path $source) {
+      if ((Get-Item $source).PSIsContainer) {
+        if ($Force) {
+          Copy-Item -Path "$source" -Destination "$destination" -Recurse -Force  | Out-Null
+          Write-Host "Copied directory '$file' with force."
         } else {
-          Write-Host "Destination '$destination' does not exist. It will be created as a hard link."
-          $destinationFullPath = Join-Path -Path (Get-Location) -ChildPath "$relativePath"
+          Copy-Item -Path "$source" -Destination "$destination" -Recurse | Out-Null
+          Write-Host "Copied directory '$file'."
         }
-        Write-Host "Source file '$($file.FullName)' will be linked to '$destinationFullPath'."
-        CreateHardLinksForFiles -Source "$file" -Destination "$destinationFullPath"
+      } else {
+        if ($Force) {
+          Copy-Item -Path "$source" -Destination "$destination" -Force | Out-Null
+          Write-Host "Copied file '$file' with force."
+        } else {
+          Copy-Item -Path "$source" -Destination "$destination" | Out-Null
+          Write-Host "Copied file '$file'."
+        }
       }
     } else {
       Write-Host "Source '$source' does not exist. Skipping."
-    }
-  }
-}
-
-<#
-    Copies default files from the default files root to the current directory if they do not already exist.
-    .PARAMETER Files
-        Array of file paths to copy.
-#>
-function CopyDefaultFiles {
-  param (
-    [string[]]$Files
-  )
-  foreach ($file in $Files) {
-    $source = Join-Path -Path $defaultFilesRoot -ChildPath $file
-    $destination = Join-Path -Path "." -ChildPath $file
-    if (Test-Path -Path $destination) {
-      Write-Host "File '$destination' already exists. Skipping."
-    } else {
-      if (Test-Path -Path $source) {
-        Copy-Item -Path "$source" -Destination "$destination"
-        Write-Host "Copied '$file'."
-      } else {
-        Write-Host "Source file '$source' does not exist. Skipping."
-        exit(1)
-      }
+      exit(1)
     }
   }
 }
@@ -376,9 +327,9 @@ function AddProjectToSolution {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
   if (Test-Path $SolutionFile) {
     if ($SolutionFolder) {
-      dotnet sln $SolutionFile add $ProjectPath --solution-folder $SolutionFolder
+      dotnet sln $SolutionFile add $ProjectPath --solution-folder $SolutionFolder  | Out-Null
     } else {
-      dotnet sln $SolutionFile add $ProjectPath
+      dotnet sln $SolutionFile add $ProjectPath | Out-Null
     }
     Write-Host "Added project at '$ProjectPath' to solution '$SolutionFile'."
   } else {
@@ -408,12 +359,12 @@ function CreateCleanArchitectureProjects {
   )
   foreach ($proj in $projects) {
     if (-not (Test-Path $proj.Path)) {
-      dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path) --framework $framework
+      dotnet new $($proj.Template) -n $($proj.Name) -o $($proj.Path) --framework $Framework | Out-Null
       if ($proj.ProjectReference) {
         $projFile = Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj"
         $referenceFolder = ($proj.ProjectReference.Split('.') | Select-Object -Last 1)
         $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($proj.ProjectReference).csproj"
-        dotnet add $projFile reference $referenceProjFile
+        dotnet add $projFile reference $referenceProjFile | Out-Null
       }
       AddProjectToSolution -ProjectPath (Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj") -SolutionFolder $proj.SolutionFolder -SolutionFile "$SolutionFile"
       Write-Host "Created $($proj.Name) project in $($proj.Path)"
@@ -439,12 +390,12 @@ function CreateBlazorProject {
   $srcPath = "src"
   $project = @{ Name = "$SolutionName.Web"; Path = "$srcPath/Web"; Template = "blazor"; Options = @("--interactivity",  "Auto", "--use-program-main"); ProjectReference = "$SolutionName.Application" }
   if (-not (Test-Path "$($project.Path)")) {
-    dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options)
+    dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options) | Out-Null
     if ($project.ProjectReference) {
       $projFile = Join-Path -Path $project.Path -ChildPath "$($project.Name)/$($project.Name).csproj"
       $referenceFolder = $project.ProjectReference.Split('.')[-1]
       $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
-      dotnet add $projFile reference $referenceProjFile
+      dotnet add $projFile reference $referenceProjFile | Out-Null
     }
     Write-Host "Created $($proj.Name) project in $($proj.Path)"
   } else {
@@ -453,7 +404,7 @@ function CreateBlazorProject {
   # add all project to solution
   $projFile = Join-Path -Path "Web" -ChildPath "$project.Name.Web/$($project.Name).csproj"
   if (Test-Path $projFile) {
-    dotnet sln add $projFile
+    dotnet sln add $projFile | Out-Null
     Write-Host "Added $($proj.Name) to solution."
   } else {
     Write-Host "Project file $projFile does not exist. Skipping adding to solution."
@@ -476,12 +427,12 @@ function CreateWebApiProject {
   $srcPath = "src"
   $project = @{ Name = "$SolutionName.WebApi"; Path = "$srcPath/WebApi"; Template = "webapi"; Options = @("--use-program-main"); ProjectReference = "$SolutionName.Application" }
   if (-not (Test-Path $project.Path)) {
-    dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options)
+    dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options) | Out-Null
     if ($project.ProjectReference) {
       $projFile = Join-Path -Path $project.Path -ChildPath "$($project.Name).csproj"
       $referenceFolder = $project.ProjectReference.Split('.')[-1]
       $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
-      dotnet add $projFile reference $referenceProjFile
+      dotnet add $projFile reference $referenceProjFile | Out-Null
     }
     AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebApi/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
     Write-Host "Created $($proj.Name) project in $($proj.Path)"
@@ -490,26 +441,19 @@ function CreateWebApiProject {
   }
 }
 
-if (-not (Test-Path $defaultFilesRoot)) {
-  Write-Host "Dotnet.DefaultFiles not found. Cloning from GitHub..."
-  Push-Location ..
-  git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git
-  Pop-Location
-}
-
-dotnet new install xunit.v3.templates
+dotnet new install xunit.v3.templates | Out-Null
 
 if ($taskList -contains "files") {
   CreateDirectories -Directories $Directories
-  CopyDefaultFiles -Files $toCopy
-  CreateHardLink -HardLinks $toHardlink -DefaultFilesRoot $defaultFilesRoot
+  CopyFileAndFolders -Files $toCopy
+  CopyFileAndFolders -Files $toCopyByForce -Force $true
 }
 
 if ($taskList -contains "arch") {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
   $solutionFile = "$solutionName.slnx"
   if (-not (Test-Path $solutionFile)) {
-    dotnet new sln -n $solutionName
+    dotnet new sln -n $solutionName | Out-Null
     Write-Host "Created solution: $solutionFile"
   } else {
     Write-Host "Solution $solutionFile already exists. Skipping."

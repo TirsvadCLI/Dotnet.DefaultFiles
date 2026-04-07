@@ -8,7 +8,7 @@ This document defines quality criteria and a template for documenting user flows
 | Id                | QC-USERFLOW                       |
 | crossReference    |                                   |
 
-## Version and Change Log
+### Change Log
 | Date       | Version | Description                     | Author        |
 |------------|---------|---------------------------------|---------------|
 | 2026-02-16 | 0001    | Initial creation of the document | Tirsvad      |
@@ -52,4 +52,4 @@ flowchart TD
 ```
 
 ## Filename Convention
-- Name files in lowercase, using digits for version, following the pattern: `userflow.uc-yyy.xxxx.md` (e.g., `userflow.uc-001.0001.md`) where `yyy` is the use case number.
+- Name files in lowercase, using digits for version, following the pattern: `userflow.uc-yyy.md` (e.g., `userflow.uc-001.md`) where `yyy` is the use case number.

@@ -1,6 +1,7 @@
 ---
 description: 'Entity Relationship Diagram (ERD) quality requirements and template for project documentation.'
-applyTo: 'docs/erd.*.md' and 'docs/use-cases/**/uc-*.erd.*.md'
+applyTo: 'docs/erd.*.md' and 'docs/use-cases/**/uc-*.erd.md'
+reference: 'docs/quality-criteria/ood/lld/qc-erd.md'
 ---
 
 # Entity Relationship Diagram (ERD) Instructions
@@ -47,7 +48,7 @@ Use this as a starting point for any project requiring an ERD. Replace all place
 ## Version Log
 | Version | Date       | Description              | Author     |
 |---------|------------|--------------------------|------------|
-| 0001    | [yyyy-mm-dd] | Initial                  | Team 6     |
+| 0001    | [yyyy-mm-dd] | Initial                  | <Insert Author Name> |
 ```
 
 ```mermaid

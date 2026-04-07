@@ -1,6 +1,7 @@
 ---
 description: 'Guidelines for building C# applications'
 applyTo: '**/*.cs'
+reference: 'docs/quality-criteria/oop/code/qc-csharp-code.md'
 ---
 
 # C# Development

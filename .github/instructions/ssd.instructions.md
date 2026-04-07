@@ -1,6 +1,7 @@
 ---
 description: 'System Sequence Diagram (SSD) template for project documentation.'
 applyTo: 'docs/use-cases/**/uc*.ssd.*.md'
+reference: 'docs/quality-criteria/ood/hld/qc-ssd.md'
 ---
 
 # SSD Instructions (Summary)
@@ -24,7 +25,7 @@ applyTo: 'docs/use-cases/**/uc*.ssd.*.md'
 ## Version Log
 | Version | Date       | Description | Author |
 |---------|------------|-------------|--------|
-| 0001    | [date]     | Initial     | [name] |
+| 0001    | [date]     | Initial     | <Insert Author Name> |
 
 ## System Sequence Diagram
 ```
@@ -67,6 +68,11 @@ optional sections for product owner domain language:
 |----------------|-----------------|
 | Id             | UC-003.SSD      |
 | crossReference | UC-003 UC-003.DM |
+
+## Version Log
+| Version | Date       | Description | Author |
+|---------|------------|-------------|--------|
+| 0001    | 2026-04-07 | Initial     | Tirsvad |
 
 ## System Sequence Diagram
 ```
