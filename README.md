@@ -50,15 +50,15 @@ The `setupSolutionCleanArchentectureCSharp.ps1` script supports several argument
 **Arguments:**
 
 | Switch         | Description                                                                                       |
-|---------------|---------------------------------------------------------------------------------------------------|
+|---------------|----------------------------------------------------------------------------------------------------|
 | `-Files`      | Only create directories, hardlink, and copy default files.                                         |
 | `-Arch`       | Only set up Clean Architecture solution and projects (Domain, Application, Infrastructure).        |
 | `-Blazor`     | Set up Clean Architecture and add Blazor WebAssembly and server projects (frontend/backend)        |
-| `-Api`        | Set up Clean Architecture and add a Web API project (backend)                                      |
+| `-WebApi`     | Set up Clean Architecture and add a Web API project                                                |
 | `-Help`       | Show usage instructions and exit.                                                                  |
-| `-defaultFilesRoot <path>` | Optional path to a custom source for default files.                                   |
+| `-DefaultFilesRoot <path>` | Optional path to a custom source for default files.                                    |
 | `-SolutionFile <file>`     | Optional custom solution file name.                                                   |
-| `-framework <version>`     | Optional .NET target framework (default: net10.0).                                   |
+| `-Framework <version>`     | Optional .NET target framework (default: net10.0).                                    |
 
 **Examples:**
 
@@ -76,13 +76,13 @@ The `setupSolutionCleanArchentectureCSharp.ps1` script supports several argument
 ./setupSolutionCleanArchentectureCSharp.ps1 -Blazor
 
 # Set up Clean Architecture and add Web API backend
-./setupSolutionCleanArchentectureCSharp.ps1 -Api
+./setupSolutionCleanArchentectureCSharp.ps1 -WebApi
 
 # Show help
 ./setupSolutionCleanArchentectureCSharp.ps1 -Help
 
 # Use a custom default files source and solution file name
-./setupSolutionCleanArchentectureCSharp.ps1 -defaultFilesRoot "../MyDefaults" -SolutionFile "MySolution.slnx"
+./setupSolutionCleanArchentectureCSharp.ps1 -DefaultFilesRoot "../MyDefaults" -SolutionFile "MySolution.slnx"
 ```
 
 ```plaintext

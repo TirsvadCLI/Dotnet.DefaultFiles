@@ -16,7 +16,7 @@
 .PARAMETER Blazor
     Switch. If specified, sets up Clean Architecture and adds Blazor WebAssembly and server projects (frontend/backend) including API.
 
-.PARAMETER Api
+.PARAMETER WebApi
     Switch. If specified, sets up Clean Architecture and adds a Web API project (backend) including architecture setup and files.
 
 .PARAMETER Help
@@ -34,7 +34,7 @@
     # Only creates directories, hardlinks, and copies default files.
 
 .EXAMPLE
-    ./setupSolutionCleanArchentectureCSharp.ps1 -blazor
+    ./setupSolutionCleanArchentectureCSharp.ps1 -Blazor
     # Sets up Clean Architecture and adds Blazor frontend/backend projects.
 
 .NOTES
@@ -51,24 +51,20 @@ param (
   [switch]$Files,
   [switch]$Arch,
   [switch]$Blazor,
-  [switch]$Api,
+  [switch]$WebApi,
   [switch]$Help,
   [string]$DefaultFilesRoot,
   [string]$SolutionFile,
   [String]$Framework = "net10.0"
 )
 
-if ($lower -in @('blazor','api','arch','files','help')) {
-  switch ($lower) {
-    'blazor' { $Blazor = $true; $Arch = $true; $Files = $true }
-    'api'    { $Api    = $true; $Arch = $true; $Files = $true }
-    'arch'   { $Arch   = $true }
-    'files'  { $Files  = $true }
-    'help'   { $Help   = $true }
-  }
-} else {
-  $Arch = $true
-  $Files = $true
+# Set default switches if none are provided
+if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
+    $Arch = $true
+    $Files = $true
+} elseif ($WebApi -or $Blazor) {
+    $Arch = $true
+    $Files = $true
 }
 
 <#
@@ -79,7 +75,7 @@ if ($lower -in @('blazor','api','arch','files','help')) {
         Switch. If specified, includes architecture setup tasks.
     .PARAMETER Blazor
         Switch. If specified, includes Blazor project setup tasks.
-    .PARAMETER Api
+    .PARAMETER WebApi
         Switch. If specified, includes API project setup tasks.
     .PARAMETER Help
         Switch. If specified, includes help task.
@@ -89,15 +85,15 @@ function Create-TaskList {
     [switch]$Files,
     [switch]$Arch,
     [switch]$Blazor,
-    [switch]$Api,
+    [switch]$WebApi,
     [switch]$Help
   )
   $taskList = @()
   if ($Blazor) {
     $taskList += "blazor"
   } 
-  if ($Api) {
-    $taskList += "api"
+  if ($WebApi) {
+    $taskList += "webapi"
   } 
   if ($Arch) {
     $taskList += "arch"
@@ -114,11 +110,17 @@ function Create-TaskList {
 function Write-help {
   Write-Host "Usage: setupSolutionCleanArchentectureCSharp.ps1 Command"
   Write-Host "Switches:"
-  Write-Host "  files   - Only create directories, hardlink, and copy default files"
-  Write-Host "  arch    - Only setup Clean Architecture solution and projects (Domain, Application, Infrastructure)"
-  Write-Host "  blazor  - Add Blazor WebAssembly and server project (frontend/backend) including architecture setup and files"
-  Write-Host "  api     - Add Web API project (backend) including architecture setup and files"
-  Write-Host "  help    - Show this help message"
+  Write-Host "  -Files   # Only create directories, hardlink, and copy default files"
+  Write-Host "  -Arch    # Only setup Clean Architecture solution and projects (Domain, Application, Infrastructure)"
+  Write-Host "  -Blazor  # Add Blazor WebAssembly and server project (frontend/backend) including architecture setup and files"
+  Write-Host "  -WebApi  # Add Web API project (backend) including architecture setup and files"
+  Write-Host "  -Help    # Show this help message"
+  Write-Host "If no switches are provided, the script will run with default settings (Arch and Files)."
+  Write-Host "Param:"
+  Write-Host "  -DefaultFilesSrc <path>  # Optional path to custom default files source. If not provided, the script will clone or update the default files repository as needed."
+  Write-Host "  -SolutionFile <path>     # Optional path to the solution file. If not provided, it will be named [solutionname].slnx based on the root folder name."
+  Write-Host "  -Framework <framework>   # Optional target framework for projects (default: net10.0 )"
+  Write-Host "Example: ./setupSolutionCleanArchentectureCSharp.ps1 -Blazor"
 }
 
 <#
@@ -183,7 +185,7 @@ if ($Help) {
   exit
 }
 
-$taskList = Create-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -Api:$Api -Help:$Help
+$taskList = Create-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -WebApi:$WebApi -Help:$Help
 $DefaultFilesRoot = Fetch-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
 
 Write-Host "DefaultFiles root: $DefaultFilesRoot"
@@ -199,9 +201,9 @@ $Directories = @(
   ".github/prompts",
   ".github/agents",
   "docs/quality-criteria",
-  "docs/quality-criteria/hld",
-  "docs/quality-criteria/lld",
-  "docs/quality-criteria/code",
+  "docs/quality-criteria/ooa",
+  "docs/quality-criteria/ood",
+  "docs/quality-criteria/oop",
   "src",
   "tests",
   "docs",
@@ -286,6 +288,8 @@ function CopyFileAndFolders {
     $destination = Join-Path -Path "." -ChildPath $file
     if (Test-Path -Path $source) {
       if ((Get-Item $source).PSIsContainer) {
+        # source one directory back .. to avoid copying the parent folder and instead copy its contents to the destination
+        $source = Join-Path -Path $source -ChildPath "*"
         if ($Force) {
           Copy-Item -Path "$source" -Destination "$destination" -Recurse -Force  | Out-Null
           Write-Host "Copied directory '$file' with force."
@@ -420,12 +424,12 @@ function CreateBlazorProject {
     .PARAMETER SolutionName
         Name of the solution (used for project naming).
 #>
-function CreateWebApiProject {
+function CreateWebWebApiProject {
   param (
     [string]$SolutionName
   )
   $srcPath = "src"
-  $project = @{ Name = "$SolutionName.WebApi"; Path = "$srcPath/WebApi"; Template = "webapi"; Options = @("--use-program-main"); ProjectReference = "$SolutionName.Application" }
+  $project = @{ Name = "$SolutionName.WebWebApi"; Path = "$srcPath/WebWebApi"; Template = "webwebapi"; Options = @("--use-program-main"); ProjectReference = "$SolutionName.Application" }
   if (-not (Test-Path $project.Path)) {
     dotnet new $($project.Template) -n $($project.Name) -o $($project.Path) $($project.Options) | Out-Null
     if ($project.ProjectReference) {
@@ -434,7 +438,7 @@ function CreateWebApiProject {
       $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
       dotnet add $projFile reference $referenceProjFile | Out-Null
     }
-    AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebApi/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
+    AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebWebApi/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
     Write-Host "Created $($proj.Name) project in $($proj.Path)"
   } else {
     Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
@@ -468,6 +472,6 @@ If ($taskList -contains "blazor") {
   CreateBlazorProject -SolutionName $solutionName
 }
 
-if ($taskList -contains "api") {
-  CreateWebApiProject -SolutionName $solutionName
+if ($taskList -contains "webwebwebapi") {
+  CreateWebWebApiProject -SolutionName $solutionName
 }
