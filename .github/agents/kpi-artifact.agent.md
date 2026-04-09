@@ -11,7 +11,7 @@ tools:
   - update/crossReference
 references:
   - .github/instructions/kpi.instructions.md
-  - docs/quality-criteria/OOA/qc-kpi.md
+  - docs/quality-criteria/ooa/qc-kpi.md
   - docs/furps.md
   - docs/bc.md
   - docs/glossary.md

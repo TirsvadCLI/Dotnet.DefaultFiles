@@ -24,7 +24,7 @@ This agent MUST comply with the SD instructions in `.github/instructions/sd.inst
 - Replace all placeholders with project-specific content.
 - Use correct file naming, versioning, and language handling as specified.
 - Maintain a version log and unique version identifier for each SD.
-- Store SD files in the centralized repository, deleting or archiving older versions as required.
+- Store SD files in the centralized repository.
 - Ensure all new terms are added to the glossary files as per instructions.
 - Validate SDs for completeness, clarity, and template compliance.
 - Look up existing DCD artifacts to ensure consistency and avoid duplication.
