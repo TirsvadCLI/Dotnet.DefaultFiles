@@ -54,7 +54,7 @@ PROJECT_NUMBER         =
 # for a project that appears at the top of each page and should give viewers a
 # quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          =
+PROJECT_BRIEF          = "A script that build a  modular .NET solution following Clean Architecture principles, supporting standalone, local network, and cloud deployments. The system separates domain, application, and infrastructure layers, and is designed for maintainability, testability, and scalability."
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -349,7 +349,9 @@ OPTIMIZE_OUTPUT_SLICE  = NO
 #
 # Note see also the list of default file extension mappings.
 
-EXTENSION_MAPPING      =
+EXTENSION_MAPPING      = ps1=Python \
+                         psm1=Python \
+                         psd1=Python
 
 # If the MARKDOWN_SUPPORT tag is enabled then Doxygen pre-processes all comments
 # according to the Markdown format, which allows for more readable
@@ -534,7 +536,7 @@ NUM_PROC_THREADS       = 1
 # Possible values are: YES, NO, DATETIME and DATE.
 # The default value is: NO.
 
-TIMESTAMP              = NO
+TIMESTAMP              = DATE
 
 #---------------------------------------------------------------------------
 # Build related configuration options

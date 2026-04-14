@@ -25,7 +25,7 @@ This agent MUST comply with the Risk & Mitigation instructions in `.github/instr
 - Ensure all risk entries are categorized correctly and assigned unique IDs as per instructions.
 - Ensure all new terms are added to the glossary files as per instructions.
 - Validate risk entries for completeness, clarity, and template compliance.
-- Look up existing risks to ensure consistency and avoid duplication.
+- Look up existing risks if they exist to ensure consistency and avoid duplication.
 
 # Workflow Triggers
 - On "Generate" or "Create" RISK: use `new` tool with path from naming rules.

@@ -29,15 +29,13 @@ Use this as a starting point for any project requiring a BMC. Replace all placeh
 ## Common Patterns
 ### Good Example
 ```markdown
+# Business Model Canvas (BMC) for [Insert Project Name]
+
 ## Metadata
 | Key               | Value                             |
 |-------------------|-----------------------------------|
 | Id                | BMC                               |
 | crossReference    |                                   |
-
-## Version
-- **Version**: 0001
-- **Date**: 2026-01-20
 
 ## Version Log
 | Version | Date       | Description              | Author     |

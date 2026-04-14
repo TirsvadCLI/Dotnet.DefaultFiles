@@ -31,31 +31,59 @@ references:
 
 ## Example:
 ```markdown
-[![NuGet Downloads][nuget-shield]][nuget-url][![Contributors][contributors-shield]][contributors-url][![Forks][forks-shield]][forks-url][![Stargazers][stars-shield]][stars-url][![Issues][issues-shield]][issues-url][![License][license-shield]][license-url][![LinkedIn][linkedin-shield]][linkedin-url]
+[![NuGet Downloads][nuget-shield]][nuget-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![License][license-shield]][license-url]
+[![Forks][forks-shield]][forks-url]
+[![Stars][stars-shield]][stars-url]
+[![Repo Size][repo-size-shield]][repo-size-url]
+[![.NET 10][dotnet-shield]][dotnet-url]
+[![Issues][issues-shield]][issues-url]
 
 # ![Logo][logo] Example Project
 
 ## Table of Contents
 
-## Overview
+<a name="overview"></a>
+## 🚀 Overview
 
-## Features
+<a name="solution-goals"></a>
+## 🎯 Solution Goals
 
-## Getting Started
+<a name="architecture"></a>
+## 🏗️ Architecture
 
-### Prerequisites
+<a name="repository-structure"></a>
+## 🗂️ Repository Structure
 
-### Installation
+<a name="prerequisites"></a>
+## 🛠️ Prerequisites
 
-#### Install via NuGet Package Manager Console
+<a name="installation"></a>
+## 📦 Installation
 
-#### Install via Visual Studio NuGet Package Manager
+### 📥 Clone the repository
 
-#### Install via .NET CLI
+### 📦 Restore dependencies
 
-#### Clone the repo ![Repo size][repos-size-shield]
+### 🏗️ Build the solution
 
-## Contact
+### 🧪 Run automated tests
+
+<a name="usage"></a>
+## ▶️ Usage
+
+<a name="documentation"></a>
+## 📝 Documentation
+
+<a name="roadmap"></a>
+## 🗺️ Roadmap
+
+<a name="license"></a>
+## 📄 License
+
+<a name="contact"></a>
+## 📬 Contact
 Jens Tirsvad Nielsen - [LinkedIn][linkedin-url]
 
 <!-- MARKDOWN LINKS & IMAGES -->

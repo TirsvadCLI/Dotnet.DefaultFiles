@@ -29,6 +29,23 @@ This file provides templates and instructions for documenting project milestones
 1. Add a table summarizing the milestones/gateways and their associated use cases.
 
 ## Templates
+```markdown
+# Gateway for [insert preject name]
+
+## Metadata
+| Key               | Value                             |
+|-------------------|-----------------------------------|
+| Id                | MILESTONE                         |
+| crossReference    | BC<br>FURPS<br>KPI                |
+
+## Version Log
+| Version | Date       | Description              | Author     |
+|---------|------------|--------------------------|------------|
+| 0001    | [Insert Today Date yyyy-mm-dd] | Initial                  | <Insert Author Name> | 
+
+## Gantt diagram
+```
+
 ```mermaid
 gantt
 title Project Milestones and Gateways
@@ -41,19 +58,19 @@ title Project Milestones and Gateways
 ```
 
 ```markdown
-### Gateways & Milestones 
+## Gateways & Milestones 
 | Milestone/Gateway | Description | Entry Criteria | Exit Criteria |
 |-------------------|-------------|---------------|---------------|
 | Gateway 1         | ...         | ...           | ...           |
 | Gateway 2         | ...         | ...           | ...           |
 
-### Use cases associated with each milestone/gateway
-| Use Case ID | Description | Milestone/Gateway |
-|-------------|-------------|-------------------|
-| uc-001      | ...         | Gateway 1         |
-| uc-002      | ...         | Gateway 1         |
-| uc-003      | ...         | Gateway 2         |
-| uc-004      | ...         | Gateway 2         |
+## Use cases associated with each milestone/gateway
+| Use Case ID | Description | Milestone/Gateway | CrossReference |
+|-------------|-------------|-------------------|----------------|
+| uc-001      | ...         | Gateway 1         | REQ-xx-xxx     |
+| uc-002      | ...         | Gateway 1         | REQ-xx-xxx     |
+| uc-003      | ...         | Gateway 2         | REQ-xx-xxx     |
+| uc-004      | ...         | Gateway 2         | REQ-xx-xxx     |
 ```
 
 ---
