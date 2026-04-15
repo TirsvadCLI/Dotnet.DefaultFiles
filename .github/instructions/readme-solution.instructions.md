@@ -21,7 +21,15 @@ references:
 
 ## Table of Contents
 
-## Installation
+<a name="overview"></a>
+## 🚀 Overview
+[Insert a more detailed overview of the project, its goals, and its architecture.]
+
+<a name="solution-goals"></a>
+## 🎯 Solution Goals
+
+<a name="installation"></a>
+## 📦 Installation
 [Insert instructions for installing the project, including any dependencies and setup steps.]
 
 <!-- Links -->

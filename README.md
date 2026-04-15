@@ -1,17 +1,31 @@
-[![Downloads][Downloads-shield]][Downloads-url][![Contributors][contributors-shield]][contributors-url][![Forks][forks-shield]][forks-url][![Stargazers][stars-shield]][stars-url][![Issues][issues-shield]][issues-url][![License][license-shield]][license-url][![LinkedIn][linkedin-shield]][linkedin-url]
+[![Downloads][Downloads-shield]][Downloads-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-# ![logo][logo] Dotnet.DefaultFiles
-
+# Dotnet.DefaultFiles
+<img  style="float: left; margin: 5px 10px 0 0;" src="https://raw.githubusercontent.com/TirsvadCLI/Logo/refs/heads/main/images/logo/64x64/logo.png">
 This repository provides a template for initializing .NET projects with default files and a setup script. It is designed to help developers quickly scaffold a new solution following Clean Architecture principles, including recommended folder structure, configuration, and build scripts.
 
-## Table of Contents
+
+## 📚 Table of Contents
 
 - [Overview](#overview)
+- [Solution Goals](#solution-goals)
 - [Setup & Usage](#setup--usage)
 - [Script Arguments and Usage](#script-arguments-and-usage)
 - [Default Files Included](#default-files-included)
+- [Best Practices](#best-practices)
+- [Copilot Agents, Instructions and Prompts](#copilot-agents)
+- [License](#license)
+- [Contact](#contact)
+- [Acknowledgements](#acknowledgements)
 
-## Overview
+<a name="overview"></a>
+## 🚀 Overview
 
 Dotnet.DefaultFiles serves as a starting point for .NET development. It includes:
 - Standard files for solution and project setup
@@ -19,6 +33,17 @@ Dotnet.DefaultFiles serves as a starting point for .NET development. It includes
 - Quality criteria for artifacts and code
 - Copilot agents, instructions and prompts for generating artifacts, code and documentation.
 
+<a name="solution-goals"></a>
+## 🎯 Solution Goals
+
+- Provide a consistent starting point for .NET projects
+- Encourage best practices in project structure and configuration
+- Facilitate quick setup of Clean Architecture solutions
+- Include tools and resources for maintaining code quality and documentation
+- Support both Blazor and Web API project types with Clean Architecture principles
+- Offer flexibility through script arguments for different project needs
+
+<a name="setup--usage"></a>
 ## Setup & Usage
 
 ### Initializing a New Project
@@ -42,7 +67,8 @@ This will create the recommended folder structure, add default files, and config
 
 The folder structure will be created as follows:
 
-## Script Arguments and Usage
+<a name="script-arguments-and-usage"></a>
+## 🛠️ Script Arguments and Usage
 
 The `setupSolutionCleanArchentectureCSharp.ps1` script supports several arguments to customize the solution setup:
 
@@ -116,6 +142,7 @@ MyBlazorApp/
 - Edit configuration files as needed (e.g., `global.json`, `Directory.Build.props`).
 - Add or update environment variables for your setup.
 
+<a name="default-files-included"></a>
 ## Default Files Included
 
 - `global.json`: .NET SDK version management
@@ -124,6 +151,7 @@ MyBlazorApp/
 - `nuget.config`: Custom NuGet feeds
 - Example scripts for setup and build
 
+<a name="best-practices"></a>
 ## Best Practices
 
 - Keep source code in `src/`, tests in `tests/`.
@@ -132,7 +160,8 @@ MyBlazorApp/
 
 For more details, see the [Microsoft documentation](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/) and Clean Architecture guides.
 
-## Copilot Agents, Instructions and Prompts
+<a name="copilot-agents"></a>
+## 🤖 Copilot Agents, Instructions and Prompts
 The repository also includes Copilot agents, instructions and prompts to assist developers in generating artifacts, code and documentation. These resources can be found in the `.github/` directory and are designed to enhance productivity and ensure consistency across projects.
 
 ### Agent Examples:
@@ -145,13 +174,15 @@ Generates, validates, and maintains domain model (DM) documentation in markdown,
 Create DM
 ```
 
-
-## License
+<a name="license"></a>
+## 📄 License
 Distributed under the AGPL-3.0 [License][license-url].
 
-## Contact
+<a name="contact"></a>
+## 📬 Contact
 Jens Tirsvad Nielsen - [LinkedIn][linkedin-url]
 
+<a name="acknowledgements"></a>
 ## Acknowledgements
 - [Microsoft Blazor Documentation](https://learn.microsoft.com/aspnet/core/blazor/)
 - [Clean Architecture Guide](https://learn.microsoft.com/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures)
