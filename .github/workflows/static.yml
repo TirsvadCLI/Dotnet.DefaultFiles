@@ -37,7 +37,20 @@ jobs:
           name: doxygen-html
           path: ./docs/doxygen/html
 
+  check-google-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check for Google owners file
+        run: |
+          if ! ls ./shared/github-pages/google*.html 1> /dev/null 2>&1; then
+            echo "No Google verification file found!"
+            exit 1
+          fi
+
   copy-google-file:
+    needs: check-google-file
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +58,7 @@ jobs:
       - name: Create path for Doxygen HTML
         run: mkdir -p ./docs/doxygen/html
       - name: Copy Google owners file
-        run: cp ./tools/github-pages/google74ed2eefe62ffac5.html ./docs/doxygen/html/
+        run: cp ./shared/github-pages/google*.html ./docs/doxygen/html/
       - name: Upload Doxygen HTML as artifact
         uses: actions/upload-artifact@v4
         with:
