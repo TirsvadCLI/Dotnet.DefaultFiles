@@ -1,0 +1,46 @@
+# Clean Architecture Solution Configuration
+Directories:
+  - .github
+  - .github/instructions
+  - .github/prompts
+  - .github/agents
+  - docs/quality-criteria
+  - docs/quality-criteria/ooa
+  - docs/quality-criteria/ood
+  - docs/quality-criteria/oop
+  - src
+  - tests
+  - docs
+  - docs/doxygen
+  - docs/adr
+  - docs/use-cases
+ToCopyByForce:
+  - .github/copilot-instructions.md
+  - .github/instructions
+  - .github/prompts
+  - .github/agents
+  - docs/quality-criteria
+ToCopy:
+  - .gitignore
+  - Directory.Build.targets
+  - Directory.Build.props
+  - Directory.Packages.props
+  - LICENSE
+  - .editorconfig
+CleanArchitectureDomainDirectories:
+  - src/Domain/Entities
+  - src/Domain/Interfaces
+  - src/Domain/ValueObjects
+CleanArchitectureApplicationDirectories:
+  - src/Application/Interfaces
+  - src/Application/Services
+  - src/Application/Managers
+  - src/Application/Helpers
+  - src/Application/DTOs
+  - src/Application/Mappers
+CleanArchitectureInfrastructureDirectories:
+  - src/Infrastructure/Managers
+CleanArchitectureInfrastructureDataDirectories:
+  - src/Infrastructure.Data/Persistents
+  - src/Infrastructure.Data/Persistents/Configurations
+  - src/Infrastructure.Data/Repositories

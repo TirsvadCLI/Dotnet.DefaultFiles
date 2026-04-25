@@ -45,14 +45,17 @@ Dotnet.DefaultFiles serves as a starting point for .NET development. It includes
 <a name="setup--usage"></a>
 ## Setup & Usage
 
+
 ### Initializing a New Project
 1. Create a folder with the name of your new solution. (e.g., `mkdir MyNewSolution`)
 2. Go to the new folder. (e.g., `cd MyNewSolution`)
 
 #### Windows PowerShell
-3. Download and run script to scaffold:
+3. Download and run the setup script to scaffold your solution. The script uses a YAML configuration file (`solution-structure.config.yaml`) to define the directory and file structure, which is loaded by `import-yaml-config.ps1`:
   - Scaffold a new solution with Clean Architecture principles:
   ```powershell
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/settings.yaml" -OutFile "settings.yaml"
+  Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/import-yaml-config.ps1" -OutFile "import-yaml-config.ps1"
   Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/refs/heads/main/setupSolutionCleanArchentectureCSharp.ps1" -OutFile "setupSolutionCleanArchentectureCSharp.ps1"
   .\setupSolutionCleanArchentectureCSharp.ps1
   ```
@@ -62,7 +65,7 @@ Dotnet.DefaultFiles serves as a starting point for .NET development. It includes
   .\setupSolutionCleanArchentectureCSharp.ps1 -Blazor -WebApi
   ```
 
-This will create the recommended folder structure, add default files, and configure the solution for Clean Architecture.
+This will create the recommended folder structure, add default files, and configure the solution for Clean Architecture, all based on the YAML configuration.
 
 The folder structure will be created as follows:
 
@@ -142,6 +145,7 @@ MyBlazorApp/
 - Add or update environment variables for your setup.
 
 <a name="default-files-included"></a>
+
 ## Default Files Included
 
 - `global.json`: .NET SDK version management
@@ -176,6 +180,19 @@ For more details, see the `.github/` directory and referenced documentation.
 - Update `README.md` with any new setup or usage instructions.
 
 For more details, see the [Microsoft documentation](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/) and Clean Architecture guides.
+
+<a name="github-pages"></a>
+## 🌐 GitHub Pages & Google Site Verification
+
+If you use GitHub Pages to publish documentation or a project site, you can add a `google*.html` file (such as `googleXXXX.html`) to the repository root or the `docs/` folder. This file is used by Google for site verification and enables Google Search Console or Analytics to collect statistics about your site.
+
+**How to add Google verification:**
+- Download the HTML verification file from Google Search Console (it will be named like `googleXXXXXXXXXXXX.html`).
+- Place the file in the `shared/github-pages/` folder.
+- Commit and push the file to your repository.
+- Google will then be able to verify your site and collect statistics.
+
+This is useful for tracking site traffic, indexing, and using other Google webmaster tools with your GitHub Pages site.
 
 <a name="copilot-agents"></a>
 ## 🤖 Copilot Agents, Instructions and Prompts

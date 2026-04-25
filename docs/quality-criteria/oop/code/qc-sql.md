@@ -1,4 +1,4 @@
-# SQL Quality Criteria
+# 🧑‍💻 Quality Criteria: SQL
 The SQL Quality Criteria focus on ensuring that SQL code is well-structured, maintainable, and adheres to best practices.
 This includes aspects such as code readability, performance, security, and adherence to coding standards.
 

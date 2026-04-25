@@ -7,6 +7,11 @@
     It supports initializing solution files, creating hard links and copies of default files, and adding Blazor or Web API projects as needed.
     The script is intended for use in repositories following the Tirsvad Clean Architecture conventions.
 
+    Directory and file structure configuration is now loaded from a YAML file (solution-structure.config.yaml) using the powershell-yaml module.
+
+    You must have powershell-yaml installed:
+        Install-Module -Name powershell-yaml -Scope CurrentUser
+
 .PARAMETER Files
     Switch. If specified, only creates directories, hardlinks, and copies default files.
 
@@ -38,7 +43,8 @@
     # Sets up Clean Architecture and adds Blazor frontend/backend projects.
 
 .NOTES
-    - Requires Git and .NET SDK installed.
+    - Requires Git, .NET SDK, and powershell-yaml module installed.
+    - Loads directory and file structure from solution-structure.config.yaml.
     - Clones or updates the Dotnet.DefaultFiles repository for default file templates if not present.
     - Solution file is named [solutionname].slnx, matching the root folder name.
     - Follows conventions described in .github/copilot-instructions.md.
@@ -47,16 +53,24 @@
     - For more details, see README.md and docs/.
 #>
 
+
 param (
   [switch]$Files,
   [switch]$Arch,
   [switch]$Blazor,
   [switch]$WebApi,
+  [switch]$Identity,
   [switch]$Help,
   [string]$DefaultFilesRoot,
   [string]$SolutionFile,
   [String]$Framework = "net10.0"
 )
+
+# Install powershell-yaml module if not already installed
+Install-Module -Name powershell-yaml -Scope CurrentUser -Force
+
+# Load YAML config for directories and files
+. "$PSScriptRoot/import-yaml-config.ps1"
 
 # Set default switches if none are provided
 if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
@@ -86,6 +100,7 @@ function Build-TaskList {
     [switch]$Arch,
     [switch]$Blazor,
     [switch]$WebApi,
+    [switch]$Identity,
     [switch]$Help
   )
   $taskList = @()
@@ -94,10 +109,13 @@ function Build-TaskList {
   } 
   if ($WebApi) {
     $taskList += "webapi"
-  } 
+  }
+  if ($Identity) {
+    $taskList += "identity"
+  }
   if ($Arch) {
     $taskList += "arch"
-  } 
+  }
   if ($Files) {
     $taskList += "files"
   } 
@@ -190,60 +208,7 @@ if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
   $SolutionFile = Join-Path -Path (Get-Location) -ChildPath "$solutionName.slnx"
 }
 
-$Directories = @(
-  ".github",
-  ".github/instructions",
-  ".github/prompts",
-  ".github/agents",
-  "docs/quality-criteria",
-  "docs/quality-criteria/ooa",
-  "docs/quality-criteria/ood",
-  "docs/quality-criteria/oop",
-  "src",
-  "tests",
-  "docs",
-  "docs/doxygen",
-  "docs/adr",
-  "docs/use-cases"
-)
 
-$toCopyByForce = @(
-  ".github/copilot-instructions.md",
-  ".github/instructions",
-  ".github/prompts",
-  ".github/agents",
-  "docs/quality-criteria"
-)
-
-$toCopy = @(
-  ".gitignore",
-  "Directory.Build.targets",
-  "Directory.Build.props",
-  "Directory.Packages.props",
-  "LICENSE",
-  ".editorconfig"
-)
-
-$cleanArchitectureDomainDirectories = @(
-  "src/Domain/Entities",
-  "src/Domain/Interfaces",
-  "src/Domain/ValueObjects"
-)
-
-$cleanArchitectureApplicationDirectories = @(
-  "src/Application/Interfaces",
-  "src/Application/Services",
-  "src/Application/Managers",
-  "src/Application/Helpers",
-  "src/Application/DTOs",
-  "src/Application/Mappers"
-)
-
-$cleanArchitectureInfrastructureDirectories = @(
-  "src/Infrastructure/Persistents",
-  "src/Infrastructure/Persistents/Configurations",
-  "src/Infrastructure/Repositories"
-)
 
 <#
     Creates directories from a list. Optionally adds a .gitkeep file to each directory.
@@ -352,9 +317,11 @@ function CreateCleanArchitectureProjects {
     @{ Name = "$SolutionName.Domain"; Path = "$srcPath/Domain"; Template = "classlib"; SolutionFolder = "src" },
     @{ Name = "$SolutionName.Application"; Path = "$srcPath/Application"; Template = "classlib"; ProjectReference = "$SolutionName.Domain"; SolutionFolder = "src" },
     @{ Name = "$SolutionName.Infrastructure"; Path = "$srcPath/Infrastructure"; Template = "classlib"; ProjectReference = "$SolutionName.Application"; SolutionFolder = "src" },
+    @{ Name = "$SolutionName.Infrastructure.Data"; Path = "$srcPath/Infrastructure.Data"; Template = "classlib"; ProjectReference = "$SolutionName.Infrastructure"; SolutionFolder = "src" },
     @{ Name = "$SolutionName.Domain.Tests"; Path = "$testsPath/Domain.Tests"; Template = "xunit3"; ProjectReference = "$SolutionName.Domain"; SolutionFolder = "tests" },
     @{ Name = "$SolutionName.Application.Tests"; Path = "$testsPath/Application.Tests"; Template = "xunit3"; ProjectReference = "$SolutionName.Application"; SolutionFolder = "tests" },
-    @{ Name = "$SolutionName.Infrastructure.Tests"; Path = "$testsPath/Infrastructure.Tests"; Template = "xunit3"; ProjectReference = "$SolutionName.Infrastructure"; SolutionFolder = "tests" }
+    @{ Name = "$SolutionName.Infrastructure.Tests"; Path = "$testsPath/Infrastructure.Tests"; Template = "xunit3"; ProjectReference = "$SolutionName.Infrastructure"; SolutionFolder = "tests" },
+    @{ Name = "$SolutionName.Infrastructure.Data.Tests"; Path = "$testsPath/Infrastructure.Data.Tests"; Template = "xunit3"; ProjectReference = "$SolutionName.Infrastructure.Data"; SolutionFolder = "tests" }
   )
   foreach ($proj in $projects) {
     if (-not (Test-Path $proj.Path)) {
@@ -374,6 +341,7 @@ function CreateCleanArchitectureProjects {
   Build-Directories -Directories $cleanArchitectureDomainDirectories -AddGitkeep $true
   Build-Directories -Directories $cleanArchitectureApplicationDirectories -AddGitkeep $true
   Build-Directories -Directories $cleanArchitectureInfrastructureDirectories -AddGitkeep $true
+  Build-Directories -Directories $cleanArchitectureInfrastructureDataDirectories -AddGitkeep $true
 }
 
 <#
