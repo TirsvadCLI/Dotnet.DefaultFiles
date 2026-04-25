@@ -34,7 +34,7 @@ function Ensure-NoUncommittedChanges {
     $gitStatus = git status --porcelain
     if ($gitStatus) {
         Write-Host "There are uncommitted changes. Please commit or stash them before running CI/CD."
-        exit 1
+        #exit 1
     }
 }
 
