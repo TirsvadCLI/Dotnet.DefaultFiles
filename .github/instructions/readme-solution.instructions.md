@@ -47,6 +47,7 @@ references:
 [![Repo Size][repo-size-shield]][repo-size-url]
 [![.NET 10][dotnet-shield]][dotnet-url]
 [![Issues][issues-shield]][issues-url]
+[![GitHub Pages][pages-shield]][pages-url]
 
 # ![Logo][logo] Example Project
 
@@ -109,6 +110,8 @@ Jens Tirsvad Nielsen - [LinkedIn][linkedin-url]
 [linkedin-url]: https://www.linkedin.com/in/jens-tirsvad-nielsen-13b795b9/
 [githubIssue-url]: https://github.com/[InsertOwner]/[InsertRepo]/issues/
 [repos-size-shield]: https://img.shields.io/github/repo-size/[InsertOwner]/[InsertRepo]?style=for-the-badge
+[pages-shield]: https://img.shields.io/badge/GitHub%20Pages-online-brightgreen?style=for-the-badge
+[pages-url]: https://[InsertOwner].github.io/[InsertRepo]/
 
 <!-- Build Status -->
 [build-shield]: https://img.shields.io/github/workflow/status/[InsertOwner]/[InsertRepo]/[InsertWorkflowName]?style=for-the-badge
