@@ -4,6 +4,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![License][license-shield]][license-url]
+[![GitHub Pages][pages-shield]][pages-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 # Dotnet.DefaultFiles
@@ -12,16 +13,18 @@ This repository provides a template for initializing .NET projects with default 
 
 ## 📚 Table of Contents
 
-- [Overview](#overview)
-- [Solution Goals](#solution-goals)
-- [Setup & Usage](#setup--usage)
-- [Script Arguments and Usage](#script-arguments-and-usage)
-- [Default Files Included](#default-files-included)
-- [Best Practices](#best-practices)
-- [Copilot Agents, Instructions and Prompts](#copilot-agents)
-- [License](#license)
-- [Contact](#contact)
-- [Acknowledgements](#acknowledgements)
+- [🚀 Overview](#overview)
+- [🎯 Solution Goals](#solution-goals)
+- [⚙️ Setup & Usage](#setup--usage)
+- [📝 Script Arguments and Usage](#script-arguments-and-usage)
+- [📂 Default Files Included](#default-files-included)
+- [❓ Why use ci-cd.ps1](#why-use-ci-cdps1)
+- [▶️ How to use ci-cd.ps1](#how-to-use-ci-cdps1)
+- [✅ Best Practices](#best-practices)
+- [🤖 Copilot Agents, Instructions and Prompts](#copilot-agents-instructions-and-prompts)
+- [📄 License](#license)
+- [📞 Contact](#contact)
+- [🙏 Acknowledgements](#acknowledgements)
 
 <a name="overview"></a>
 ## 🚀 Overview
@@ -154,6 +157,37 @@ MyBlazorApp/
 - `nuget.config`: Custom NuGet feeds
 - Example scripts for setup and build
 
+## Why use `ci-cd.ps1`
+
+The `ci-cd.ps1` script automates essential CI/CD safety and consistency checks for your repository. It ensures:
+- You do not accidentally run deployments from the `main` branch.
+- There are no uncommitted changes before running CI/CD steps.
+- All git-tracked text files have consistent LF (Unix) line endings, preventing cross-platform issues.
+- Optionally, it can start required containers, run build and test stages, and commit line ending fixes automatically.
+
+Using this script helps maintain a clean, reliable, and reproducible development and deployment workflow, especially in collaborative or cross-platform environments.
+
+## How to use `ci-cd.ps1`
+
+1. Ensure all your work is committed and you are not on the `main` branch.
+2. Open a PowerShell terminal in the repository root.
+3. Run the script:
+   ```powershell
+   ./ci-cd.ps1
+   ```
+4. The script will:
+   - Check your branch and uncommitted changes.
+   - Convert all git-tracked file line endings to LF.
+   - Optionally, start containers and run build/test stages (uncomment in the script as needed).
+   - Commit any line ending fixes if changes are detected.
+   - Push changes to the remote repository.
+
+**Note:**
+- You can customize which stages are active by commenting/uncommenting lines in the script (e.g., to enable build or test stages).
+- The script requires Docker and Git to be installed and available in your PATH.
+
+For more details, see the comments in `ci-cd.ps1`.
+
 <a name="github-folder"></a>
 ## 📂 The `.github` Folder
 
@@ -194,7 +228,7 @@ If you use GitHub Pages to publish documentation or a project site, you can add 
 
 This is useful for tracking site traffic, indexing, and using other Google webmaster tools with your GitHub Pages site.
 
-<a name="copilot-agents"></a>
+<a name="copilot-agents-instructions-and-prompts"></a>
 ## 🤖 Copilot Agents, Instructions and Prompts
 The repository also includes Copilot agents, instructions and prompts to assist developers in generating artifacts, code and documentation. These resources can be found in the `.github/` directory and are designed to enhance productivity and ensure consistency across projects.
 
@@ -247,3 +281,6 @@ Jens Tirsvad Nielsen - [LinkedIn][linkedin-url]
 
 [screenshot1]: https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/main/image/small/Screenshot1.png
 [screenshot1-url]: https://raw.githubusercontent.com/TirsvadCLI/Dotnet.DefaultFiles/main/image/Screenshot1.png
+
+[pages-shield]: https://img.shields.io/badge/GitHub%20Pages-online-brightgreen?style=for-the-badge
+[pages-url]: https://tirsvadcli.github.io/Dotnet.DefaultFiles/

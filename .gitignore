@@ -423,9 +423,3 @@ FodyWeavers.xsd
 # Static files
 /docs/doxygen/html
 /docs/doxygen/latex
-/src/WebUI/WebUI/wwwroot/projects/**
-/src/WebUI/WebUI/wwwroot/images/coverage/projects/**
-/src/WebUI/WebUI/wwwroot/sitemap.html
-/src/WebUI/WebUI/wwwroot/sitemap.xml
-/src/WebUI/WebUI/wwwroot/sitemap.xml.gz
-/src/WebUI/WebUI/wwwroot/urllist.txt
