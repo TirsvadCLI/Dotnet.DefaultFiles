@@ -313,7 +313,7 @@ $DefaultFilesRoot = Get-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
 Write-Host "DefaultFiles root: $DefaultFilesRoot"
 
 # Import file handling functions BEFORE using Copy-FileAndFolders
-Import-Module "$DefaultFilesRoot/Scripts/FileHandling.ps1"
+. "$DefaultFilesRoot/Scripts/FileHandling.ps1"
 
 # Check if we have a settings.yaml file in the current directory. if not we copy it from $DefaultFilesRoot
 if (-not (Test-Path "settings.yaml")) {

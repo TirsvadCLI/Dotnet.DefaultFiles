@@ -55,6 +55,3 @@ function Copy-FileAndFolders {
     }
   }
 }
-
-
-Export-ModuleMember -Function New-Directories,Copy-FileAndFolders
