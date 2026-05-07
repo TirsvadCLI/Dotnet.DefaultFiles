@@ -53,7 +53,6 @@
     - For more details, see README.md and docs/.
 #>
 
-
 param (
   [switch]$Files,
   [switch]$Arch,
@@ -61,7 +60,6 @@ param (
   [switch]$WebApi,
   [switch]$Identity,
   [switch]$Help,
-  [string]$DefaultFilesRoot,
   [string]$SolutionFile,
   [String]$Framework = "net10.0"
 )
@@ -69,16 +67,42 @@ param (
 # Install powershell-yaml module if not already installed
 Install-Module -Name powershell-yaml -Scope CurrentUser -Force
 
-# Load YAML config for directories and files
-. "$PSScriptRoot/import-yaml-config.ps1"
-
-# Set default switches if none are provided
-if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
-    $Arch = $true
-    $Files = $true
-} elseif ($WebApi -or $Blazor) {
-    $Arch = $true
-    $Files = $true
+function Get-DefaultSource {
+  param (
+    [string]$DefaultFilesRoot
+  )
+  if ([string]::IsNullOrWhiteSpace($DefaultFilesRoot)) {
+    $parentPath = Join-Path -Path (Get-Location) -ChildPath ".."
+    if (Test-Path $parentPath) {
+        $Subfolder = (Get-Item -Path $parentPath).FullName
+        Write-Host "Parent path found: $Subfolder"
+    } else {
+        $Subfolder = ""
+        Write-Host "Parent path '$parentPath' does not exist. Cannot determine subfolder. Exiting."
+        exit(1)
+    }
+    Write-Host "No DefaultFilesSrc provided. Using default path: $Subfolder\TirsvadCLI.Dotnet.DefaultFiles"
+    $DefaultFilesRoot = Join-Path -Path "$Subfolder" -ChildPath "TirsvadCLI.Dotnet.DefaultFiles"
+    if (-not (Test-Path "$DefaultFilesRoot")) {
+      Write-Host "TirsvadCLI.Dotnet.DefaultFiles not found. Cloning from GitHub..."
+      Push-Location ..
+      git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git $DefaultFilesRoot | Out-Null
+      Pop-Location
+    } else {
+      Write-Host "TirsvadCLI.Dotnet.DefaultFiles already exists. Pulling latest changes from GitHub..."
+      Push-Location ../TirsvadCLI.Dotnet.DefaultFiles
+      git pull origin main | Out-Null
+      Pop-Location
+    }
+  } else {
+    if (-not (Test-Path "$DefaultFilesRoot")) {
+      Write-Host "Provided DefaultFilesSrc path '$DefaultFilesRoot' does not exist. Exiting."
+      exit(1)
+    }
+  }
+  Write-Host ""
+  Write-Host "Using DefaultFiles root: $DefaultFilesRoot"
+  return $DefaultFilesRoot
 }
 
 <#
@@ -94,7 +118,7 @@ if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
     .PARAMETER Help
         Switch. If specified, includes help task.
 #>
-function Build-TaskList {
+function New-TaskList {
   param (
     [switch]$Files,
     [switch]$Arch,
@@ -126,7 +150,7 @@ function Build-TaskList {
  * @brief Displays usage instructions for the script.
  * @details Provides information on available switches and parameters.
  #>
-function Write-help {
+function Show-Help {
   Write-Host "Usage: setupSolutionCleanArchentectureCSharp.ps1 Command"
   Write-Host "Switches:"
   Write-Host "  -Files   # Only create directories, hardlink, and copy default files"
@@ -143,137 +167,6 @@ function Write-help {
 }
 
 <#
-    Checks for the presence of the default files directory.
-    If it doesn't exist, clones the repository from GitHub.
-    If it does exist, pulls the latest changes.
-    If a custom path is provided, validates that the path exists.
-    .PARAMETER DefaultFilesRoot
-        String. Optional path to the default files root directory.
-#>
-function Get-DefaultSource {
-  param (
-    [string]$DefaultFilesRoot
-  )
-  if ([string]::IsNullOrWhiteSpace($DefaultFilesRoot)) {
-    #$Subfolder =  Get-Item -Path (Join-Path -Path (Get-Location) -ChildPath "..").FullName
-    $parentPath = Join-Path -Path (Get-Location) -ChildPath ".."
-    if (Test-Path $parentPath) {
-        $Subfolder = (Get-Item -Path $parentPath).FullName
-        Write-Host "Parent path found: $Subfolder"
-    } else {
-        $Subfolder = ""
-        Write-Host "Parent path '$parentPath' does not exist. Cannot determine subfolder. Exiting."
-        exit(1)
-    }
-    Write-Host "No DefaultFilesSrc provided. Using default path: $Subfolder\\TirsvadCLI.Dotnet.DefaultFiles"
-    $DefaultFilesRoot = Join-Path -Path "$Subfolder" -ChildPath "TirsvadCLI.Dotnet.DefaultFiles"
-    # Define the root path where the original files are located
-    if (-not (Test-Path "$DefaultFilesRoot")) {
-      Write-Host "TirsvadCLI.Dotnet.DefaultFiles not found. Cloning from GitHub..."
-      Push-Location ..
-      git clone https://github.com/TirsvadCLI/Dotnet.DefaultFiles.git $DefaultFilesRoot | Out-Null
-      #Write-Host $cloneOutput
-      Pop-Location
-    } else {
-      Write-Host "TirsvadCLI.Dotnet.DefaultFiles already exists. Pulling latest changes from GitHub..."
-      Push-Location ../TirsvadCLI.Dotnet.DefaultFiles
-      git pull origin main | Out-Null
-      #Write-Host $pullOutput
-      Pop-Location
-    }
-  } else {
-    if (-not (Test-Path "$DefaultFilesRoot")) {
-      Write-Host "Provided DefaultFilesSrc path '$DefaultFilesRoot' does not exist. Exiting."
-      exit(1)
-    }
-  }
-  Write-Host ""
-  Write-Host "Using DefaultFiles root: $DefaultFilesRoot"
-  return $DefaultFilesRoot
-}
-
-# Print help message and exit if argument is 'help'
-if ($Help) {
-  Write-help
-  exit
-}
-
-$taskList = Build-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -WebApi:$WebApi -Help:$Help
-$DefaultFilesRoot = Get-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
-
-Write-Host "DefaultFiles root: $DefaultFilesRoot"
-
-if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
-  $solutionName = Split-Path -Path (Get-Location) -Leaf
-  $SolutionFile = Join-Path -Path (Get-Location) -ChildPath "$solutionName.slnx"
-}
-
-
-
-<#
-    Creates directories from a list. Optionally adds a .gitkeep file to each directory.
-    .PARAMETER Directories
-        Array of directory paths to create.
-    .PARAMETER AddGitkeep
-        Boolean. If true, adds a .gitkeep file to each directory.
-#>
-function Build-Directories {
-  param (
-    [string[]]$Directories,
-    [bool]$AddGitkeep = $false
-  )
-  foreach ($dir in $Directories) {
-    if (-not (Test-Path $dir)) {
-      New-Item -ItemType Directory -Path $dir | Out-Null
-      if ($AddGitkeep) {
-        $gitkeepPath = Join-Path -Path $dir -ChildPath ".gitkeep"
-        New-Item -ItemType File -Path $gitkeepPath | Out-Null
-      }
-      Write-Host "Created $dir directory."
-    } else {
-      Write-Host "$dir directory already exists. Skipping."
-    }
-  }
-}
-
-function CopyFileAndFolders {
-  param (
-    [string[]]$Files,
-    [bool]$Force = $false
-  )
-
-  foreach ($file in $Files) {
-    Write-Host "Processing '$file'..."
-    $source = Join-Path -Path $DefaultFilesRoot -ChildPath $file
-    $destination = Join-Path -Path "." -ChildPath $file
-    if (Test-Path -Path $source) {
-      if ((Get-Item $source).PSIsContainer) {
-        # source one directory back .. to avoid copying the parent folder and instead copy its contents to the destination
-        $source = Join-Path -Path $source -ChildPath "*"
-        if ($Force) {
-          Copy-Item -Path "$source" -Destination "$destination" -Recurse -Force  | Out-Null
-          Write-Host "Copied directory '$file' with force."
-        } else {
-          Copy-Item -Path "$source" -Destination "$destination" -Recurse | Out-Null
-          Write-Host "Copied directory '$file'."
-        }
-      } else {
-        if ($Force) {
-          Copy-Item -Path "$source" -Destination "$destination" -Force | Out-Null
-          Write-Host "Copied file '$file' with force."
-        } else {
-          Copy-Item -Path "$source" -Destination "$destination" | Out-Null
-          Write-Host "Copied file '$file'."
-        }
-      }
-    } else {
-      Write-Host "Source '$source' does not exist. Skipping."
-      exit(1)
-    }
-  }
-}
-
-<#
     Adds a project to the solution file, optionally under a solution folder.
     .PARAMETER SolutionFile
         Path to the solution file.
@@ -282,7 +175,7 @@ function CopyFileAndFolders {
     .PARAMETER SolutionFolder
         Solution folder to add the project under (optional).
 #>
-function AddProjectToSolution {
+function Add-ProjectToSolution {
   param (
     [string]$SolutionFile,
     [string]$ProjectPath,
@@ -307,7 +200,7 @@ function AddProjectToSolution {
     .PARAMETER SolutionName
         Name of the solution (used for project naming).
 #>
-function CreateCleanArchitectureProjects {
+function New-CleanArchitectureProjects {
   param (
       [string]$SolutionName
   )
@@ -338,10 +231,10 @@ function CreateCleanArchitectureProjects {
       Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
     }
   }
-  Build-Directories -Directories $cleanArchitectureDomainDirectories -AddGitkeep $true
-  Build-Directories -Directories $cleanArchitectureApplicationDirectories -AddGitkeep $true
-  Build-Directories -Directories $cleanArchitectureInfrastructureDirectories -AddGitkeep $true
-  Build-Directories -Directories $cleanArchitectureInfrastructureDataDirectories -AddGitkeep $true
+  New-Directories -Directories $cleanArchitectureDomainDirectories -AddGitkeep $true
+  New-Directories -Directories $cleanArchitectureApplicationDirectories -AddGitkeep $true
+  New-Directories -Directories $cleanArchitectureInfrastructureDirectories -AddGitkeep $true
+  New-Directories -Directories $cleanArchitectureInfrastructureDataDirectories -AddGitkeep $true
 }
 
 <#
@@ -349,7 +242,7 @@ function CreateCleanArchitectureProjects {
     .PARAMETER SolutionName
         Name of the solution (used for project naming).
 #>
-function CreateBlazorProject {
+function New-BlazorProject {
   param (
     [string]$SolutionName
   )
@@ -387,7 +280,7 @@ function CreateBlazorProject {
     .PARAMETER SolutionName
         Name of the solution (used for project naming).
 #>
-function CreateWebWebApiProject {
+function New-WebWebApiProject {
   param (
     [string]$SolutionName
   )
@@ -408,12 +301,52 @@ function CreateWebWebApiProject {
   }
 }
 
+# Print help message and exit if argument is 'help'
+
+if ($Help) {
+  Show-Help
+  exit
+}
+
+$taskList = New-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -WebApi:$WebApi -Help:$Help
+$DefaultFilesRoot = Get-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
+Write-Host "DefaultFiles root: $DefaultFilesRoot"
+
+# Import file handling functions BEFORE using Copy-FileAndFolders
+Import-Module "$DefaultFilesRoot/Scripts/FileHandling.ps1"
+
+# Check if we have a settings.yaml file in the current directory. if not we copy it from $DefaultFilesRoot
+if (-not (Test-Path "settings.yaml")) {
+  Write-Host "settings.yaml not found in current directory. Copying from $DefaultFilesRoot..."
+  Copy-FileAndFolders -Files @("settings.yaml") -DefaultFilesRoot $DefaultFilesRoot
+} else {
+  Write-Host "settings.yaml already exists in current directory. Skipping copy."
+}
+
+# Load YAML config for directories and files
+. "$DefaultFilesRoot/import-yaml-config.ps1"
+
+# Set default switches if none are provided
+if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
+    $Arch = $true
+    $Files = $true
+} elseif ($WebApi -or $Blazor) {
+    $Arch = $true
+    $Files = $true
+}
+
+if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
+  $solutionName = Split-Path -Path (Get-Location) -Leaf
+  $SolutionFile = Join-Path -Path (Get-Location) -ChildPath "$solutionName.slnx"
+}
+
 dotnet new install xunit.v3.templates | Out-Null
 
+
 if ($taskList -contains "files") {
-  Build-Directories -Directories $Directories
-  CopyFileAndFolders -Files $toCopy
-  CopyFileAndFolders -Files $toCopyByForce -Force $true
+  New-Directories -Directories $Directories
+  Copy-FileAndFolders -Files $toCopy -DefaultFilesRoot $DefaultFilesRoot
+  Copy-FileAndFolders -Files $toCopyByForce -DefaultFilesRoot $DefaultFilesRoot -Force $true
 }
 
 if ($taskList -contains "arch") {
@@ -428,13 +361,13 @@ if ($taskList -contains "arch") {
 }
 
 If ($taskList -contains "arch") {
-  CreateCleanArchitectureProjects -SolutionName $solutionName
+  New-CleanArchitectureProjects -SolutionName $solutionName
 }
 
 If ($taskList -contains "blazor") {
-  CreateBlazorProject -SolutionName $solutionName
+  New-BlazorProject -SolutionName $solutionName
 }
 
 if ($taskList -contains "webwebwebapi") {
-  CreateWebWebApiProject -SolutionName $solutionName
+  New-WebWebApiProject -SolutionName $solutionName
 }
