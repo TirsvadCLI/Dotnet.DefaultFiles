@@ -225,7 +225,7 @@ function New-CleanArchitectureProjects {
         $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($proj.ProjectReference).csproj"
         dotnet add $projFile reference $referenceProjFile | Out-Null
       }
-      AddProjectToSolution -ProjectPath (Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj") -SolutionFolder $proj.SolutionFolder -SolutionFile "$SolutionFile"
+      Add-ProjectToSolution -ProjectPath (Join-Path -Path $proj.Path -ChildPath "$($proj.Name).csproj") -SolutionFolder $proj.SolutionFolder -SolutionFile "$SolutionFile"
       Write-Host "Created $($proj.Name) project in $($proj.Path)"
     } else {
       Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
@@ -271,8 +271,8 @@ function New-BlazorProject {
   }
   Write-Host (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName/$($project.Name).csproj")
   Write-Host (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Client/$($project.Name).client.csproj")
-  AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
-  AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web.Client/$($project.Name).Client.csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
+  Add-ProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
+  Add-ProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "Web/$SolutionName.Web.Client/$($project.Name).Client.csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
 }
 
 <#
@@ -294,7 +294,7 @@ function New-WebWebApiProject {
       $referenceProjFile = Join-Path -Path "src" -ChildPath "$referenceFolder/$($project.ProjectReference).csproj"
       dotnet add $projFile reference $referenceProjFile | Out-Null
     }
-    AddProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebWebApi/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
+    Add-ProjectToSolution -ProjectPath (Join-Path -Path $srcPath -ChildPath "WebWebApi/$($project.Name).csproj") -SolutionFolder "src" -SolutionFile "$SolutionFile"
     Write-Host "Created $($proj.Name) project in $($proj.Path)"
   } else {
     Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
