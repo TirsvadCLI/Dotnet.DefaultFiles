@@ -308,6 +308,15 @@ if ($Help) {
   exit
 }
 
+# Set default switches if none are provided
+if (-not ($WebApi -or $Blazor -or $Identity -or $Files -or $Arch)) {
+    $Arch = $true
+    $Files = $true
+} elseif ($WebApi -or $Blazor -or $Identity) {
+    $Arch = $true
+    $Files = $true
+}
+
 $taskList = New-TaskList -Files:$Files -Arch:$Arch -Blazor:$Blazor -WebApi:$WebApi -Help:$Help
 $DefaultFilesRoot = Get-DefaultSource -DefaultFilesRoot $DefaultFilesRoot
 Write-Host "DefaultFiles root: $DefaultFilesRoot"
@@ -326,14 +335,6 @@ if (-not (Test-Path "settings.yaml")) {
 # Load YAML config for directories and files
 . "$DefaultFilesRoot/import-yaml-config.ps1"
 
-# Set default switches if none are provided
-if (-not ($WebApi -or $Blazor -or $Help -or $Files -or $Arch)) {
-    $Arch = $true
-    $Files = $true
-} elseif ($WebApi -or $Blazor) {
-    $Arch = $true
-    $Files = $true
-}
 
 if ([string]::IsNullOrWhiteSpace($SolutionFile)) {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
@@ -351,12 +352,11 @@ if ($taskList -contains "files") {
 
 if ($taskList -contains "arch") {
   $solutionName = Split-Path -Path (Get-Location) -Leaf
-  $solutionFile = "$solutionName.slnx"
-  if (-not (Test-Path $solutionFile)) {
+  if (-not (Test-Path $SolutionFile)) {
     dotnet new sln -n $solutionName | Out-Null
-    Write-Host "Created solution: $solutionFile"
+    Write-Host "Created solution: $SolutionFile"
   } else {
-    Write-Host "Solution $solutionFile already exists. Skipping."
+    Write-Host "Solution $SolutionFile already exists. Skipping."
   }
 }
 
