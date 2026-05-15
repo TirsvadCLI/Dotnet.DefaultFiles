@@ -11,19 +11,23 @@
 <img  style="float: left; margin: 5px 10px 0 0;" src="https://raw.githubusercontent.com/TirsvadCLI/Logo/refs/heads/main/images/logo/64x64/logo.png">
 This repository provides a template for initializing .NET projects with default files and a setup script. It is designed to help developers quickly scaffold a new solution following Clean Architecture principles, including recommended folder structure, configuration, and build scripts.
 
+
 ## 📚 Table of Contents
 
 - [🚀 Overview](#overview)
 - [🎯 Solution Goals](#solution-goals)
 - [⚙️ Setup & Usage](#setup--usage)
-- [📝 Script Arguments and Usage](#script-arguments-and-usage)
+- [🛠️ Script Arguments and Usage](#script-arguments-and-usage)
 - [📂 Default Files Included](#default-files-included)
 - [❓ Why use ci-cd.ps1](#why-use-ci-cdps1)
 - [▶️ How to use ci-cd.ps1](#how-to-use-ci-cdps1)
+- [📂 The .github Folder](#github-folder)
 - [✅ Best Practices](#best-practices)
+- [🔐 GitHub Actions Secrets Setup](#github-actions-secrets-setup)
+- [🌐 GitHub Pages & Google Site Verification](#github-pages)
 - [🤖 Copilot Agents, Instructions and Prompts](#copilot-agents-instructions-and-prompts)
 - [📄 License](#license)
-- [📞 Contact](#contact)
+- [📬 Contact](#contact)
 - [🙏 Acknowledgements](#acknowledgements)
 
 <a name="overview"></a>
@@ -147,7 +151,7 @@ MyBlazorApp/
 - Edit configuration files as needed (e.g., `global.json`, `Directory.Build.props`).
 - Add or update environment variables for your setup.
 
-<a name="default-files-included"></a>
+<a name="default-files-included" />
 
 ## Default Files Included
 
@@ -157,6 +161,7 @@ MyBlazorApp/
 - `nuget.config`: Custom NuGet feeds
 - Example scripts for setup and build
 
+<a name="why-use-ci-cdps1" />
 ## Why use `ci-cd.ps1`
 
 The `ci-cd.ps1` script automates essential CI/CD safety and consistency checks for your repository. It ensures:
@@ -167,6 +172,7 @@ The `ci-cd.ps1` script automates essential CI/CD safety and consistency checks f
 
 Using this script helps maintain a clean, reliable, and reproducible development and deployment workflow, especially in collaborative or cross-platform environments.
 
+<a name="how-to-use-ci-cdps1" />
 ## How to use `ci-cd.ps1`
 
 1. Ensure all your work is committed and you are not on the `main` branch.
@@ -188,7 +194,7 @@ Using this script helps maintain a clean, reliable, and reproducible development
 
 For more details, see the comments in `ci-cd.ps1`.
 
-<a name="github-folder"></a>
+<a name="github-folder" />
 ## 📂 The `.github` Folder
 
 The `.github` directory contains configuration, automation, and documentation resources that support development workflows and code quality:
@@ -215,10 +221,31 @@ For more details, see the `.github/` directory and referenced documentation.
 
 For more details, see the [Microsoft documentation](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/) and Clean Architecture guides.
 
+<a name="github-actions-secrets-setup"></a>
+## 🔐 GitHub Actions Secrets Setup
+
+To enable CI/CD with the provided workflow, you must configure the following repository secrets in your GitHub project:
+
+| Secret Name                                   | Description                                      | Example Value                |
+|-----------------------------------------------|--------------------------------------------------|------------------------------|
+| `DB_HOST`                                     | Database server host (PostgreSQL/MySQL/other)    | `localhost` or `db.example`  |
+| `DB_PORT`                                     | Database server port                             | `5432` (Postgres default)    |
+| `DB_NAME`                                     | Database name                                    | `mydatabase`                 |
+| `DB_USER`                                     | Database user                                    | `dbuser`                     |
+| `DB_PASSWORD`                                 | Database user password                           | `supersecret`                |
+| `TOKENVALIDATIONPARAMETERS__ISSUERSIGNINGKEY` | JWT signing key for token validation             | `your-signing-key`           |
+
+**How to add secrets:**
+1. Go to your repository on GitHub.
+2. Click on `Settings` > `Secrets and variables` > `Actions`.
+3. Click `New repository secret` for each secret above and enter the name and value.
+
+These secrets are used by the workflow in `.github/workflows/ci.yml` to generate the `.env` file and configure your build and test environment.
+
 <a name="github-pages"></a>
 ## 🌐 GitHub Pages & Google Site Verification
 
-If you use GitHub Pages to publish documentation or a project site, you can add a `google*.html` file (such as `googleXXXX.html`) to the repository root or the `docs/` folder. This file is used by Google for site verification and enables Google Search Console or Analytics to collect statistics about your site.
+If you use GitHub Pages to publish documentation or a project site, you can add a `google*.html` file (such as `googleXXXX.html`) for Google site verification. This file is used by Google Search Console or Analytics to collect statistics about your site.
 
 **How to add Google verification:**
 - Download the HTML verification file from Google Search Console (it will be named like `googleXXXXXXXXXXXX.html`).
