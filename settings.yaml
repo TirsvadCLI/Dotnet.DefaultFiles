@@ -38,6 +38,11 @@ ToCopy:
   - Directory.Packages.props
   - LICENSE
   - .editorconfig
+ToCopyWithDestination:
+  # List of [source, destination] tuples for copying files to specific locations
+  - [shared/.github/workflows/ci.yml, .github/workflows/ci.yml]
+  - [shared/github-pages/index.html, .github/github-pages/index.html]
+  
 CleanArchitectureDomainDirectories:
   - src/Domain/Entities
   - src/Domain/Interfaces

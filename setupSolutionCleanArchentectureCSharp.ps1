@@ -167,14 +167,14 @@ function Show-Help {
 }
 
 <#
-    Adds a project to the solution file, optionally under a solution folder.
-    .PARAMETER SolutionFile
-        Path to the solution file.
-    .PARAMETER ProjectPath
-        Path to the project file to add.
-    .PARAMETER SolutionFolder
-        Solution folder to add the project under (optional).
-#>
+ #  Adds a project to the solution file, optionally under a solution folder.
+ #  .PARAMETER SolutionFile
+ #      Path to the solution file.
+ #  .PARAMETER ProjectPath
+ #      Path to the project file to add.
+ #  .PARAMETER SolutionFolder
+ #      Solution folder to add the project under (optional).
+ #>
 function Add-ProjectToSolution {
   param (
     [string]$SolutionFile,
@@ -195,11 +195,11 @@ function Add-ProjectToSolution {
 }
 
 <#
-    Creates Clean Architecture projects (Domain, Application, Infrastructure, and their test projects).
-    Adds references and folders as needed.
-    .PARAMETER SolutionName
-        Name of the solution (used for project naming).
-#>
+ #  Creates Clean Architecture projects (Domain, Application, Infrastructure, and their test projects).
+ #  Adds references and folders as needed.
+ #  .PARAMETER SolutionName
+ #      Name of the solution (used for project naming).
+ #>
 function New-CleanArchitectureProjects {
   param (
       [string]$SolutionName
@@ -238,10 +238,10 @@ function New-CleanArchitectureProjects {
 }
 
 <#
-    Creates Blazor WebAssembly and Server projects and adds them to the solution.
-    .PARAMETER SolutionName
-        Name of the solution (used for project naming).
-#>
+ #  Creates Blazor WebAssembly and Server projects and adds them to the solution.
+ #  .PARAMETER SolutionName
+ #      Name of the solution (used for project naming).
+ #>
 function New-BlazorProject {
   param (
     [string]$SolutionName
@@ -299,6 +299,28 @@ function New-WebWebApiProject {
   } else {
     Write-Host "$($proj.Name) project already exists in $($proj.Path). Skipping."
   }
+}
+
+# Copies files from ToCopyWithDestination, creating destination directories if needed
+function Copy-FilesWithDestination {
+    param (
+        [Parameter(Mandatory=$true)]
+        [array]$ToCopyWithDestination,
+        [Parameter(Mandatory=$true)]
+        [string]$DefaultFilesRoot
+    )
+    foreach ($pair in $ToCopyWithDestination) {
+        $source = $pair[0]
+        $destination = $pair[1]
+        $sourcePath = Join-Path $DefaultFilesRoot $source
+        $destinationPath = $destination
+        $destinationDir = Split-Path $destinationPath -Parent
+        if (-not (Test-Path $destinationDir)) {
+            New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+        }
+        Copy-Item -Path $sourcePath -Destination $destinationPath -Force
+        Write-Host "Copied $sourcePath to $destinationPath"
+    }
 }
 
 ########################################
@@ -371,6 +393,10 @@ If ($taskList -contains "blazor") {
   New-BlazorProject -SolutionName $solutionName
 }
 
-if ($taskList -contains "webwebwebapi") {
-  New-WebWebApiProject -SolutionName $solutionName
+
+if ($null -ne $toCopyWithDestination -and $toCopyWithDestination.Count -gt 0) {
+    Copy-FilesWithDestination -ToCopyWithDestination $toCopyWithDestination -DefaultFilesRoot $DefaultFilesRoot
+} else {
+    Write-Host "No files specified in ToCopyWithDestination. Skipping."
 }
+

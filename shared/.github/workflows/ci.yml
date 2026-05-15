@@ -1,0 +1,90 @@
+name: Build and Test
+permissions:
+  issues: write
+on:
+  push:
+    branches: [ main, feature/* ]
+  pull_request:
+    branches: [ main, feature/* ]
+
+jobs:
+  BuildSecrets:
+    runs-on: ubuntu-latest
+    environment: database
+    steps:
+      - uses: actions/checkout@v6
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "ConnectionStrings__AppDbContext=Host=${{ secrets.DB_HOST }};Port=${{ secrets.DB_PORT }};Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "TokenValidationParameters__IssuerSigningKey=${{ secrets.TOKENVALIDATIONPARAMETERS__ISSUERSIGNINGKEY }}" >> .env
+      - name: Upload .env file as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: .env
+          if-no-files-found: warn
+          compression-level: 6
+          overwrite: false
+          include-hidden-files: true
+
+  build:
+    name: Build and Test
+    needs: BuildSecrets
+    runs-on: ubuntu-latest
+    environment: database
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.420
+      - name: Download .env file artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+      - name: Copy .env file to API project
+        run: cp .env src/Api/.env
+      - name: Load .env file
+        run: export $(cat .env | xargs)
+      - name: Find solution file
+        id: find_sln
+        run: |
+          SLN_FILE=$(find . -maxdepth 1 -name "*.slnx" | head -n 1)
+          if [ -z "$SLN_FILE" ]; then
+            echo "No .slnx file found!" >&2
+            exit 1
+          fi
+          echo "solution_file=$SLN_FILE" >> $GITHUB_OUTPUT
+      - name: Restore dependencies
+        run: dotnet restore ${{ steps.find_sln.outputs.solution_file }}
+      - name: Build
+        run: dotnet build --no-restore ${{ steps.find_sln.outputs.solution_file }} --configuration Release --verbosity normal
+      - name: Test
+        run: dotnet test ${{ steps.find_sln.outputs.solution_file }} --no-build --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Upload code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-results
+          path: "**/TestResults/**/coverage.cobertura.xml"
+          if-no-files-found: warn
+      - name: Notify committer on test failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (pr) {
+              const committer = pr.user.login;
+              const message = `@${committer} :x: Tests failed for this pull request. Please check the logs and fix the issues.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: message
+              });
+            }

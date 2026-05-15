@@ -20,3 +20,4 @@ $cleanArchitectureDomainDirectories = $config.CleanArchitectureDomainDirectories
 $cleanArchitectureApplicationDirectories = $config.CleanArchitectureApplicationDirectories
 $cleanArchitectureInfrastructureDirectories = $config.CleanArchitectureInfrastructureDirectories
 $cleanArchitectureInfrastructureDataDirectories = $config.CleanArchitectureInfrastructureDataDirectories
+$toCopyWithDestination = $config.ToCopyWithDestination
