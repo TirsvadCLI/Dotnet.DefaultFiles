@@ -1,3 +1,14 @@
+# ci-di configurations
+# This contains the configuration for the ci-di tool, which is used to automate the development process.
+# It includes settings for Docker, as well as the directory structure for a Clean Architecture solution.
+# Docker.Container.Database: This is the full name of the Docker container that will be used for the database.
+#                            It should include the image name and tag, as well as any necessary environment variables or ports.
+Docker:
+  Container:  
+    Database: 
+    Build: build-stage
+    Tests: tests-stage
+
 # Clean Architecture Solution Configuration
 Directories:
   - .github

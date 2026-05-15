@@ -301,8 +301,11 @@ function New-WebWebApiProject {
   }
 }
 
-# Print help message and exit if argument is 'help'
+########################################
+# Main CI/CD Script
+########################################
 
+# Print help message and exit if argument is 'help'
 if ($Help) {
   Show-Help
   exit
