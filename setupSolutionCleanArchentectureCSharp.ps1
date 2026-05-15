@@ -400,7 +400,7 @@ if ($null -ne $toCopyWithDestination.GitHubWorkflows -and $toCopyWithDestination
     Write-Host "No files specified in ToCopyWithDestination for GitHubWorkflows. Skipping."
 }
 
-if ($taskList -contains "blazor" and $taskList -contains "webapi") {
+if ($taskList -contains "blazor" -and $taskList -contains "webapi") {
   if ($null -ne $toCopyWithDestination.WebUIAndWebApi -and $toCopyWithDestination.WebUIAndWebApi.Count -gt 0) {
       Copy-FilesWithDestination -ToCopyWithDestination $toCopyWithDestination.WebUIAndWebApi -DefaultFilesRoot $DefaultFilesRoot
   } else {
