@@ -152,7 +152,7 @@ function Invoke-CommitLineEndingFixIfNeeded {
     $gitStatus = git status --porcelain
     if ($gitStatus) {
         git add .
-        git commit -m "fix line endings"
+        git commit --amend --no-edit
     }
 }
 
