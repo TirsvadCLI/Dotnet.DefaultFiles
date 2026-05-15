@@ -36,13 +36,21 @@ ToCopy:
   - Directory.Build.targets
   - Directory.Build.props
   - Directory.Packages.props
+  - global.json
   - LICENSE
   - .editorconfig
+  - pull.ps1 
 ToCopyWithDestination:
   # List of [source, destination] tuples for copying files to specific locations
-  - [shared/.github/workflows/ci.yml, .github/workflows/ci.yml]
-  - [shared/github-pages/index.html, .github/github-pages/index.html]
-  
+  GitHubWorkflows:
+    - [shared/.github/workflows/ci.yml, .github/workflows/ci.yml]
+    - [shared/.github/workflows/static.yml, .github/workflows/static.yml] 
+    - [shared/github-pages/index.html, .github/github-pages/index.html]
+  WebUIAndWebApi:
+    - [shared/tools/docker/webui-webapi/run_tests.sh, tools/docker/run_tests.sh]
+  Docker:
+    - [shared/tools/docker/docker-compose.yml, docker-compose.yml]
+    - [shared/tools/docker/Dockerfile, Dockerfile] 
 CleanArchitectureDomainDirectories:
   - src/Domain/Entities
   - src/Domain/Interfaces

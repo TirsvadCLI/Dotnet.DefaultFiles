@@ -1,0 +1,146 @@
+services:
+  slottets-sqlserver:
+    image: mysql
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      vlan-db:
+        ipv4_address: 10.29.10.99
+
+  build-stage:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build-stage
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DOTNET_RUNNING_IN_CONTAINER: true
+    restart: "no"
+    networks:
+      vlan-db:
+
+  tests-stage:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: tests-stage
+    depends_on:
+      slottets-sqlserver:
+        condition: service_started
+      build-stage:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MYSQL_HOST=slottets-sqlserver
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOCKER_DOTNET_TEST=true
+    working_dir: /workspace
+    volumes:
+      - ./TestResults:/artifacts/TestResults
+    networks:
+      vlan-db:
+    restart: "no"
+
+  publish-stage:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: publish-stage
+    depends_on:
+      tests-stage:
+        condition: service_completed_successfully
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: "no"
+
+  webapi-final-stage:
+    profiles:
+      - prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: webapi-final-stage
+    depends_on:
+      slottets-sqlserver:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:5051
+      - MYSQL_HOST=10.29.10.99
+      - MYSQL_PORT=3306
+    ports:
+      - "5051:5051"
+#    expose:
+#      - 5051
+    networks:
+      vlan-db:
+      vlan-web:
+        ipv4_address: 10.29.30.11
+    volumes:
+      - ./DataProtection-Keys:/root/.aspnet/DataProtection-Keys
+    restart: "always"
+
+  webui-final-stage:
+    profiles:
+      - prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: webui-final-stage
+    depends_on:
+      slottets-sqlserver:
+        condition: service_healthy
+      webapi-final-stage:
+        condition: service_started
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:5050
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./src/WebUI/WebUI/DataProtection-Keys:/app/DataProtection-Keys
+    networks:
+      vlan-web:
+        ipv4_address: 10.29.30.10
+    restart: "always"
+
+volumes:
+  mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./Data
+      o: bind
+
+networks:
+  vlan-db:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.29.10.0/24
+  vlan-web:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.29.30.0/24
