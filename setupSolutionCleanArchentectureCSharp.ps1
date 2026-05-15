@@ -315,7 +315,7 @@ function Copy-FilesWithDestination {
         $sourcePath = Join-Path $DefaultFilesRoot $source
         $destinationPath = $destination
         $destinationDir = Split-Path $destinationPath -Parent
-        if (-not (Test-Path $destinationDir)) {
+        if ($destinationDir -and -not (Test-Path $destinationDir)) {
             New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
         }
         Copy-Item -Path $sourcePath -Destination $destinationPath -Force
